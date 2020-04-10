@@ -1,0 +1,53 @@
+\documentclass{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+
+\begin{document}
+\def\gnuplotscript{
+	ii={0,1};
+	ZZ(x,y)=(x+ii*y)-1/(x+ii*y);
+	set sample 100;
+	unset surface;
+	unset key;
+	set contour;
+	set view map;
+	set cntrparam cubicspline;
+	set size square;
+	set cntrparam levels 12;
+	set isosample 20;
+}
+
+\begin{tikzpicture}
+\begin{axis}[no markers,
+	axis line style={draw=none}, 
+	tick label style={draw=none},
+	tick style={draw=none},
+	x axis line style={draw opacity=0},
+	y axis line style={draw opacity=0},
+	xticklabels={,,},
+	yticklabels={,,},
+	axis on top, 
+	xmin=-2.5, xmax=2.5, ymin=-2.5, ymax=2.5,
+	width=12cm, height=12cm
+	]    
+	
+	\addplot[->, contour prepared, raw gnuplot, thick, contour/draw color=red, contour/labels=false] 
+	gnuplot {%
+		\gnuplotscript
+		splot[-2.5:0][-2.5:2.5] (x**2+y**2)<1?0:abs(real(ZZ(x,y)));                  
+	};
+	\addplot[->, contour prepared, raw gnuplot, thick, contour/draw color=red, contour/labels=false] 
+	gnuplot {%
+	\gnuplotscript
+	splot[0:2.5][-2.5:2.5] (x**2+y**2)<1?0:abs(real(ZZ(x,y)));                  
+	};
+	\draw[color=red,thick] (axis cs: 0,2.5) -- (axis cs: 0,1) (axis cs: 0,-2.5) -- (axis cs: 0,-1);
+	\draw [thick, draw=black]  (axis cs: 0,0) circle(1);
+	\draw [->, ultra thick] (axis cs: 0,1) -- (axis cs: 0,2);
+	\draw [->, ultra thick] (axis cs: 0,-1) -- (axis cs: 0,-2);
+	\node[fill=white] at (axis cs: 0.3,2) {\huge $F_d$};
+	\node[fill=white] at (axis cs: 0.3,-2) {\huge $F_g$};
+	\end{axis}
+\end{tikzpicture}
+\end{document}

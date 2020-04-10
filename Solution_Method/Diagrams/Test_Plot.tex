@@ -1,0 +1,26 @@
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots}
+\begin{document}
+\pgfplotsset{set layers}
+
+\begin{tikzpicture}
+	\begin{axis}[
+	axis lines=middle,
+	grid, thick,
+	xmin=0, xmax=1000,
+	ymin=0, ymax=1.2,
+	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
+	extra y ticks=0, extra y tick labels=$0$, extra y tick style={grid=none},
+	x tick label style={/pgf/number format/.cd,%
+		scaled x ticks = false,
+		set thousands separator={},
+		fixed},
+	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
+	xlabel={Time ($s$)},
+	ylabel={$D^2$ $mm^2$}
+	]
+	\addplot[red] table[x=time, y=D2] {heat_mass_runge_kutta_0_1_mass_lim.txt};
+	\end{axis}
+\end{tikzpicture}
+\end{document}

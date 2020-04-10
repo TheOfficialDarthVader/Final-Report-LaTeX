@@ -1,0 +1,50 @@
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{
+	legend entry/.initial=,
+	every axis plot post/.code={%
+		\pgfkeysgetvalue{/pgfplots/legend entry}\tempValue
+		\ifx\tempValue\empty
+		\pgfkeysalso{/pgfplots/forget plot}%
+		\else
+		\expandafter\addlegendentry\expandafter{\tempValue}%
+		\fi
+	},
+}
+
+\pgfplotsset{every axis legend/.style={
+		cells={anchor=center},% Centered entries
+		inner xsep=3pt,inner ysep=2pt,nodes={inner sep=2pt,text depth=0.15em},
+		anchor=south east,
+		shape=rectangle,
+		fill=white,
+		draw=black,
+		font=\tiny,
+		at={(0.98,0.83)}
+	}
+}
+\begin{document}
+\pgfplotsset{set layers}
+
+\begin{tikzpicture}
+	\begin{axis}[
+	axis lines=middle,
+	grid, thick,
+	xmin=0, xmax=6,
+	ymin=0, ymax=1,
+	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
+	extra y ticks=0, extra y tick labels=$0$, extra y tick style={grid=none},
+	x tick label style={/pgf/number format/.cd,%
+		scaled x ticks = false,
+		set thousands separator={},
+		fixed},
+	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
+	xlabel={$\frac{\Delta t}{\tau_{d_0}}$},
+	ylabel={$\frac{m_d}{m_{d,0}}$}
+	]
+	\addplot[blue, legend entry=Analytic solution] table[x=time, y=m_an] {mass_transfer_time_step_5.txt};
+	\addplot[only marks, green, legend entry=Numerical solution] table[x=time, y=m_num] {mass_transfer_time_step_5.txt};
+	\end{axis}
+\end{tikzpicture}
+\end{document}

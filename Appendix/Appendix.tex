@@ -1,0 +1,213 @@
+\documentclass[../Interim_Report_Master]{subfiles}
+\begin{document}
+\hypertarget{apend}{\section*{Appendix}\label{apend}}
+\appendix
+\section{Method Statement}
+As this project involves no practical experimentation and only concerns desk-based research there is not a need to submit a risk assessment.
+\section{Derivations}
+\subsection{Velocity of a Particle under Weight and Stokes Drag Forces}\label{particle_grav_drag_dev}
+The derived ODE from Section \ref{an_test} is:
+\begin{subequations}
+	\begin{align}
+	\frac{du}{dt} &= g + \frac{1}{\tau_d}(u_f-u) \\
+	\frac{du}{dt} + \frac{u}{\tau_d} &= g + \frac{u_f}{\tau_d}
+	\end{align}
+\end{subequations}
+
+An equation of the form $du/dt + Pu = Q$, where $P$ and $Q$ are functions of $t$. Which can be solved with an integrating factor.
+
+Integrating factor:
+\begin{subequations}
+	\begin{align}
+	IF &= e^{\int P dt} \\
+	&= e^{\int 1/\tau_d dt} \\
+	&= e^{t/\tau_d}
+	\end{align}
+\end{subequations}
+
+Therefore:
+\begin{subequations}
+	\begin{align}
+	e^{t/\tau_d}\frac{du}{dt} + e^{t/\tau_d}\frac{u}{\tau_d} &= e^{t/\tau_d}\left(g + \frac{u_f}{\tau_d}\right) \\
+	\frac{d}{dt}\left(e^{t/\tau_d}u\right) &= e^{-t/\tau_d}\left(g + \frac{u_f}{\tau_d}\right) \\
+	e^{t/\tau_d}u &= \int e^{t/\tau_d}\left(g - \frac{u_f}{\tau_d}\right) dt \\
+	e^{t/\tau_d}u &= \tau_de^{t/\tau_d}\left(g + \frac{u_f}{\tau_d}\right) + C 
+	\end{align}
+\end{subequations}
+
+Solve for $C$ with the boundary condition $u=0$ when $t=0$:
+\begin{subequations}
+	\begin{align}
+	0 &= \tau_d\left(g + \frac{u_f}{\tau_d}\right) + C \\
+	C &= -\tau_d\left(g + \frac{u_f}{\tau_d}\right) 
+	\end{align}
+\end{subequations}
+
+So that:
+\begin{subequations}
+	\begin{align}
+	e^{t/\tau_d}u &= \tau_de^{t/\tau_d}\left(g + \frac{u_f}{\tau_d}\right) - \tau_d\left(g + \frac{u_f}{\tau_d}\right) \\
+	u &= \tau_d\left(g + \frac{u_f}{\tau_d}\right) - \tau_d\left(g + \frac{u_f}{\tau_d}\right)e^{-t/\tau_d} \\
+	u &= \tau_d\left(g + \frac{u_f}{\tau_d}\right)(1-e^{-t/\tau_d})
+	\end{align}
+\end{subequations}
+
+\subsection{Backward Euler Method for Temperature ODE}\label{back_euler_temp_dev}
+Rearrangement of the backward Euler method for the temperature ODE:
+\begin{subequations}
+\begin{align}
+T_{d_{n+1}} =& T_{d_{n}} + \Delta t \left[\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d_{n+1}}) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right] \\
+\frac{T_{d_{n+1}}}{\Delta t} =& \frac{T_{d_{n}}}{\Delta t} +  \left[T_{G}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) -T_{d_{n+1}}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right] \\
+\frac{T_{d_{n+1}}}{\Delta t} + T_{d_{n+1}}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) =& \frac{T_{d_{n}}}{\Delta t} +  \left[T_{G}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right] \\
+T_{d_{n+1}}\left[\frac{1}{\Delta t}+\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)\right] =& \frac{T_{d_{n}}}{\Delta t} +  \left[T_{G}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right] \\
+T_{d_{n+1}} =& \frac{\frac{T_{d_{n}}}{\Delta t} +  \left[T_{G}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right]}{\left(\frac{1}{\Delta t}+\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)\right)} \\
+T_{d_{n+1}} =& \frac{T_{d_{n}} + \Delta t \left[T_{G}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right]}{\left(1+\Delta t\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)\right)}  
+\end{align}
+\end{subequations}
+
+\subsection{Backward Euler Method for Mass ODE}\label{back_euler_mass_dev}
+Rearrangement of the backward Euler method for the mass ODE:
+\begin{subequations}
+\begin{align}
+m_{d_{n+1}} =& m_{d_{n}} + \Delta t \left[-\frac{Sh}{3Sc_{G}}\left(\frac{m_{d_{n+1}}}{\tau_{d}}\right)H_M\right] \\
+\frac{m_{d_{n+1}}}{\Delta t} =& \frac{m_{d_{n}}}{\Delta t}+  \left[-\frac{Sh}{3Sc_{G}}\left(\frac{m_{d_{n+1}}}{\tau_{d}}\right)H_M\right] \\
+\frac{m_{d_{n+1}}}{\Delta t} + \frac{Sh}{3Sc_{G}}\left(\frac{m_{d_{n+1}}}{\tau_{d}}\right)H_M =& \frac{m_{d_{n}}}{\Delta t} \\
+m_{d_{n+1}}\left[\frac{1}{\Delta t} + \frac{Sh}{3Sc_{G}}\left(\frac{H_M}{\tau_{d}}\right)\right] =& \frac{m_{d_{n}}}{\Delta t} \\
+m_{d_{n+1}} =& \frac{\frac{m_{d_{n}}}{\Delta t}}{\frac{1}{\Delta t} + \frac{Sh}{3Sc_{G}}\left(\frac{H_M}{\tau_{d}}\right)} \\
+m_{d_{n+1}} =& \frac{m_{d_{n}}}{1+ \Delta t\frac{Sh}{3Sc_{G}}\left(\frac{H_M}{\tau_{d}}\right)} 
+\end{align}
+\end{subequations}
+
+\subsection{Uncoupled Heat Transfer}\label{uc_heat_dev}
+Analytic solution of the uncoupled heat transfer ODE:
+\begin{equation}
+\frac{dT_{d}}{dt} = \frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d})
+\end{equation}
+To make the solution steps clearer, define the constants:
+\begin{subequations}
+\begin{align}
+A &= \frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) \\
+B &= T_G
+\end{align}
+\end{subequations}
+
+The ODE can then be solved for \(T_{d_{n+1}}\) for a given increment in time \(\Delta t\) from a state where \(T_d=T_{d_{n}}\) :
+\begin{subequations}
+\begin{align}
+\frac{dT_{d}}{dt} =& A(B-T_{d}) \\
+\int_{T_{d_{n}}}^{T_{d_{n+1}}} \frac{dT_d}{(B-T_d)} =& \int_{0}^{\Delta t} A~dt \\
+\left[\ln(B-T_{d})\right]_{T_{d_{n}}}^{T_{d_{n+1}}} =& \left[A~t\right]_{0}^{\Delta t} \\
+-\ln(B-T_{d_{n+1}}) + \ln(B-T_{d_{n}}) =& A \Delta t \\
+\ln\left(\frac{B-T_{d_{n+1}}}{B-T_{d_{n}}}\right) =& -A \Delta t \\
+\frac{B-T_{d_{n+1}}}{B-T_{d_{n}}} =& e^{-A \Delta t} \\
+B-T_{d_{n+1}} =& (B-T_{d_{n}})e^{-A \Delta t} \\
+T_{d_{n+1}} =& B - (B-T_{d_{n}})e^{-A \Delta t} 
+\end{align}
+\end{subequations}
+
+Hence, the final analytic solution is:
+\begin{equation}
+T_{d_{n+1}} = T_G - (T_G-T_{d_{n}})e^{-\left(\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)\right)\Delta t}
+\end{equation}
+\subsection{Uncoupled Mass Transfer}\label{uc_mass_dev}
+The analytic solution for the uncoupled mass transfer ODE:
+\begin{subequations}
+\begin{align}
+\frac{dm_d}{dt} =& -\frac{Sh}{3Sc_G}\frac{m_d}{\tau_d}H_M \\
+\frac{\rho_d \pi D^2}{2}\frac{dD}{dt} =& -\frac{Sh}{3Sc_G}\frac{18 \rho_d \pi D^3 \mu_g}{6\rho_d D^2}H_M \\
+D\frac{dD}{dt} =& -\frac{2Sh}{Sc_G\rho_d }\mu_g H_M  \\
+\int_{D^2_n}^{D^2_{n+1}}D~dD =& -\frac{2Sh}{Sc_G\rho_d }\mu_g H_M \int_{0}^{\Delta t}~dt \\
+\left[\frac{D^2}{2}\right]_{D^2_n}^{D^2_{n+1}} =& -\frac{2Sh}{Sc_G\rho_d }\mu_g H_M \left[t\right]_{0}^{\Delta t} \\
+\frac{1}{2}\left[D^2_{n+1} - D^2_n\right] =& -\frac{2Sh}{Sc_G\rho_d }\mu_g H_M ~\Delta t \\
+D^2_{n+1} =& D^2_n -\frac{4Sh}{Sc_G\rho_d }\mu_g H_M ~\Delta t
+\end{align}
+\end{subequations}
+
+Solved for mass:
+\begin{subequations}
+\begin{align}
+\frac{dm_d}{dt} =& -\frac{Sh}{3Sc_G}\frac{m_d}{\tau_d}H_M \\
+\frac{dm_d}{dt} =& -\frac{Sh}{3Sc_G} H_M m_d^{1/3}(3\mu_G)\left(\left(\frac{6}{\rho_d}\right)^{1/3}\pi^{2/3} \right)\\
+\frac{dm_d}{dt} =& -\frac{Sh}{Sc_G}\mu_G H_M \left(\frac{6}{\rho_d}\right)^{1/3}\pi^{2/3} m_d^{1/3}\\
+\int_{{m_d}_n}^{{m_d}_{n+1}} \frac{dm_d}{\left(m_d\right)^{1/3}} =& -\frac{Sh}{Sc_G}\mu_G H_M \left(\frac{6}{\rho_d}\right)^{1/3}\pi^{2/3}\int_{0}^{\Delta t} ~ dt \\
+\left[\frac{3}{2}\left(m_d\right)^{2/3}\right]_{{m_d}_n}^{{m_d}_{n+1}} =& -\frac{Sh}{Sc_G}\mu_G H_M \left(\frac{6}{\rho_d}\right)^{1/3}\pi^{2/3} \left[t\right]_{0}^{\Delta t} \\
+\frac{3}{2}\left[\left({m_d}_{n+1}\right)^{2/3} - \left({m_d}_{n}\right)^{2/3}\right] =& -\frac{Sh}{Sc_G}\mu_G H_M \left(\frac{6}{\rho_d}\right)^{1/3}\pi^{2/3} ~ \Delta t \\
+\left({m_d}_{n+1}\right)^{2/3} =& \left({m_d}_{n}\right)^{2/3} - \frac{2Sh}{3Sc_G}\mu_G H_M \left(\frac{6}{\rho_d}\right)^{1/3}\pi^{2/3} ~ \Delta t
+\end{align}
+\end{subequations}
+As:
+\begin{equation}
+\tau_d = \frac{\rho_d D^2}{18\mu_g}
+\end{equation}
+
+and:
+\begin{equation}
+D = \left(\frac{6}{\rho_d \pi}\right)^{1/3} \left(m_d\right)^{1/3}
+\end{equation}
+
+\subsection{Terminal Velocity}
+The particle reaches a terminal velocity when the weight forces balances the drag force:
+\begin{equation}
+F_g = F_d
+\end{equation}
+
+Using the definitions for $F_g$ and $F_d$ from Section x:
+\begin{subequations}
+\begin{align}
+mg &= \frac{m}{\tau_d}(u-v) \\
+g &= \frac{1}{\tau_d}(u-v) \\
+v &= u - g\tau_d \\
+v &= u -g\frac{\rho_d D^2}{18\mu_G}
+\end{align}
+\end{subequations}
+
+\section{Physical Data}
+Note that $T_R$ is the reference temperature used when evaluating a property. This is particularly important to take into account when using the ``1/3 rule''. The physical data presented here is as per \cite{Miller1998}. The original source of physical data is also referenced.
+
+\subsection{Air}
+Data originally from \cite{harpole1981}.
+\begin{subequations}
+\begin{align}
+W_C &= 28.97~kg~(kg~mole)^{-1} \\
+\mu_C &= 6.19\times 10^{-6} + 4.604\times 10^{-8}T_R - 1.051\times 10^{-11}{T_R}^2~kg~m^{-1}s^{-1} \\
+\lambda_C &= 3.227\times 10^{-3} + 8.3894\times 10^{-5}T_R - 1.9858\times 10^{-8}{T_R}^2~J~m^{-1}s^{-1}K^{-1} \\
+Pr_C &= 0.815 - 4.958\times 10^{-4}T_R + 4.514\times 10^{-7}{T_R}^2~(T_R\leq 600~K) \\
+Pr_C &= 0.647 - 5.5\times 10^{-5}T_R~(T_R>600~K) 
+\end{align}
+\end{subequations}
+
+The gas pressure is calculated from the reference temperature and the gas density using the ideal gas law. This requires knowing the gas density, the reference data for this is tabulated below and referenced from \cite{cengel2008}.
+
+\subsection{Water}
+Data originally from \cite{harpole1981}.
+\begin{subequations}
+\begin{align}
+W_V &= 18.015~kg~(kg~mole)^{-1} \\
+T_B &= 3731.15~K \\
+C_{p,V} &= 8137 - 37.34T_R + 0.07482{T_R}^2 - 4.956\times 10^{-5}{T_R}^3~J~kg^{-1}K^{-1} \\
+\mu_V &= 4.07\times 10^{-8}T_R - 3.077\times 10^{-6}~kg~m^{-1}s^{-1} \\
+L_V &= 2.257\times 10^{6} + 2.595\times 10^{3}(371.15-T_R)~J~Kg^{-1} \\
+\rho_L &= 997~kg~m^{-3} \\
+C_L &= 4148~J~kg^{-1}K^{-1} \\
+\lambda_L &= 0.6531~J~m^{-1}s^{-1}K^{-1}
+\end{align}
+\end{subequations}
+
+\newpage
+\section{Existing Codebase Structure}\label{prog_strut}
+\begin{figure}
+	\centering
+	\includegraphics*[width=0.5\textwidth, trim=0 900 0 0, clip]{./Diagrams/DEMOranges_Structure/DEMOranges_Structure.pdf}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics*[width=0.5\textwidth, trim=0 425 0 575, clip]{./Diagrams/DEMOranges_Structure/DEMOranges_Structure.pdf}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics*[width=0.5\textwidth, trim=0 0 0 1050, clip]{./Diagrams/DEMOranges_Structure/DEMOranges_Structure.pdf}
+	\caption{File structure of the DEMOranges codebase.}
+	\label{demorange_struct}
+\end{figure}
+
+\end{document}

@@ -1,0 +1,53 @@
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{
+	compat=1.9,
+	legend entry/.initial=,
+	every axis plot post/.code={%
+		\pgfkeysgetvalue{/pgfplots/legend entry}\tempValue
+		\ifx\tempValue\empty
+		\pgfkeysalso{/pgfplots/forget plot}%
+		\else
+		\expandafter\addlegendentry\expandafter{\tempValue}%
+		\fi
+	},
+}
+
+\pgfplotsset{every axis legend/.style={
+		cells={anchor=center},% Centered entries
+		inner xsep=3pt,inner ysep=2pt,nodes={inner sep=2pt,text depth=0.15em},
+		anchor=south east,
+		shape=rectangle,
+		fill=white,
+		draw=black,
+		font=\tiny,
+		at={(0.98,0.7)}
+	}
+}
+\begin{document}
+\pgfplotsset{set layers}
+
+\begin{tikzpicture}
+	\begin{axis}[
+	axis lines=middle,
+	thick,
+	xmin=0, xmax=1000,
+	ymin=280, ymax=286,
+	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
+	extra y ticks=280, extra y tick labels=$280$, extra y tick style={grid=none},
+	x tick label style={/pgf/number format/.cd,%
+		scaled x ticks = false,
+		set thousands separator={},
+		fixed},
+	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
+	xlabel={$t~[s]$},
+	ylabel={$T_d~[K]$}
+	]
+	\addplot[dashed, blue, legend entry=Forward Euler] table[x=time, y=temp_fe] {c_fe_temp_transfer_time_step_tau_8.txt};
+	\addplot[dashdotted, red, legend entry=Backward Euler] table[x=time, y=temp_be] {c_be_temp_transfer_time_step_tau_8.txt};
+	\addplot[dotted, green, legend entry=Modified Euler] table[x=time, y=temp_me] {c_me_temp_transfer_time_step_tau_8.txt};
+	\addplot[dotted, blue, legend entry=Fourth-order Runge-Kutta] table[x=time, y=temp_rk] {c_rk_temp_transfer_time_step_tau_8.txt};
+	\end{axis}
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,22 @@
+\documentclass[tikz]{standalone}
+\usetikzlibrary{shapes.geometric, arrows,fit,matrix,positioning,shapes.multipart}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\begin{document}
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzstyle{ODEprocess} = [rectangle, minimum width=8cm, minimum height=2cm, text centered, draw=black, fill=blue!30]
+\begin{tikzpicture}[node distance=3cm]
+	% Place nodes
+	\node (pro1) [ODEprocess, align=center] {$k_1 = \Delta t f(t_n,\phi_n)$};
+	\node (pro2) [ODEprocess, below of=pro1, align=center] {$k_2 = \Delta t f\left(t_n+\frac{\Delta t}{2}\right)$};
+	\node (pro3) [ODEprocess, below of=pro2, align=center] {$k_3 = \Delta t f\left(t_n+\frac{\Delta t}{2}, \phi_n+\frac{k_2}{2}\right)$};
+	\node (pro4) [ODEprocess, below of=pro3, align=center] {$k_4 = \Delta t f\left(t_n+\Delta t, \phi_n+k_3\right)$};
+	\node (pro5) [ODEprocess, below of=pro4, align=center] {$\phi_{n+1} = \phi_n + \frac{1}{6}(k_1+2k_2+2k_3+k_4)$};
+
+	% Draw arrows
+	\draw [arrow] (pro1) -- (pro2);
+	\draw [arrow] (pro2) -- (pro3);
+	\draw [arrow] (pro3) -- (pro4);
+	\draw [arrow] (pro4) -- (pro5);
+\end{tikzpicture}
+\end{document}

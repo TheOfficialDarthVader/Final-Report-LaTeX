@@ -1,0 +1,502 @@
+\documentclass[../Interim_Report_Master]{subfiles}
+\begin{document}
+\hypertarget{sol_meth}{\section{Single Particle Solution Method}\label{sol_meth}}
+The ODEs for mass and heat transfer are coupled and non-linear making them challenging to solve analytically. To get the simulation running initially the ODEs for heat and mass transfer were solved separately. Different numerical methods were used to solve the ODEs to evaluate their suitability.
+
+\subsection{Simulation Settings}
+For the set of results for the uncoupled heat and mass transfer the following settings were used. The Reynolds number was set to zero, which means the drop is stationary and there is only diffusive heat transfer. This fixes the value of the Nusselt and Sherwood numbers as constant. As M1 is used $f_2 = 1$ and $H_{\Delta T}=0$. 
+
+In addition to this to decouple the temperature ODE from the mass ODE, the term $\left(\frac{L_V}{C_L}\right)\frac{\dot{m_d}}{m_d}$ was ignored. The mass transfer ODE requires no such alterations to decouple it. 
+
+Some parameters must be calculated based on empirical relations. For the droplet this includes the $\mu_V$ and $L_V$. See Section x for the formulae. 
+
+The full settings are listed in Table x:
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c c|}
+		\hline
+		\textbf{Parameter} & \textbf{Setting} \\ \hline
+		\textbf{Droplet Properties} &  \\ \hline
+		Molecular Weight of Vapour Phase $W_V$ & $18.015~kg/kg mol$ \\ 
+		Boiling Temperature $T_B$ & $373.15~K$ \\ 
+		Latent Heat of Evaporation $L_V$ & $2.257\times 10^6 + 2.595\times 10^3(T_B-T_G)$\\
+		Density of Liquid Phase $\rho_L$ & $997~kg/m^3$ \\
+		Specific Heat Capacity of Liquid Phase $C_L$ & $4184~J/(kg~K)$ \\ 
+		Initial Temperature $T_{d0}$ & $282~K$ \\ 
+		Initial Diameter squared ${D_0}^2$ & $1.1~mm$ \\ 
+		Initial Velocity $u_0$ & $0~m/s$ \\ 
+		Initial Reynolds Number $Re_0$ & $0$ \\ \hline
+		\textbf{Gas Properties} &  \\ \hline
+		Pressure $P_G$ & $101325~Pa$ \\ 
+		Temperature $T_G$ & $298~K$ \\
+		Density $\rho_G$ &  \\ 
+		Kinematic Viscosity $\mu_G$ &  \\ 
+		Molecular Weight of Phase $W_C$ & $28.97~kg/(kg~mol)$ \\ 
+		Prandtl Number $Pr_G$ &  \\ 
+		Schimdt Number $Sh_G$ &  \\ \hline
+		\textbf{Atmospheric Properties} &  \\ \hline
+		Pressure $P$ & $P=P_G$ \\ 
+		Temperature $T$ & $T=T_G$ \\ \hline
+		\textbf{Non-Dimensional Numbers} &  \\ \hline
+		Lewis Number & $1$ \\
+		Sherwood Number $Sh$ &  \\ 
+		Nusselt Number $Nu$ &  \\ \hline
+		\textbf{Physical Constants} &  \\ \hline
+		Gas Constant $\bar{R}$ & $8314.5~J/(K(kg~mol))$ \\ 
+		Universal Gas Constant $R$ & $287~J/(kg~K)$ \\ 
+		Specific Heat for Constant Pressure ${C_P}_G$ &  \\ \hline
+		\textbf{Simulation Properties} &  \\ \hline
+		Correction factor $f_2$ & 1 \\
+		Driving Potential $H_{\Delta T}$ & 0 \\
+		Driving Potential $H_M$ & $\ln(1+{B_M,eq})$ \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection{Uncoupled Heat Transfer}
+Using the settings specified in Section x the temperature ODE becomes:
+\begin{equation}
+\frac{dT_{d}}{dt} = \frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d})
+\label{temp_transfer_simple}
+\end{equation}
+
+Which can be solved analytically to provide a reference point for the numerical solution. See Section \ref{uc_heat_dev} for the full derivation which produces the solution:
+\begin{equation}
+T_{d_{n+1}} = T_G - (T_G-T_{d_{n}})e^{-\left(\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)\right)\Delta t}
+\label{heat_sol_an}
+\end{equation}
+
+%The numerical solution uses the Euler forward method, which can be used to solve an ODE of the form:
+%\begin{equation}
+%\frac{dy}{dt} = f(t,~y)
+%\end{equation}
+%
+%in increments of \(\Delta t\), by assuming for a small timestep the output of the differential is constant. The formula is:
+%\begin{equation}
+%y_{n+1} = y_n + \Delta tf(t_n,~y_n)
+%\end{equation}
+%
+%With \(n+1\) being the output at the end of the timestep and \(n\) being the current value. Applying this result to equation \ref{temp_transfer_simple}:
+%\begin{equation}
+%T_{d_{n+1}} = T_{d_{n}} + \Delta t \left(\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d})\right)
+%\label{temp_iter}
+%\end{equation}
+
+The implementation of equation \ref{temp_transfer_simple} requires the usage of a for loop to iterate through the time steps. Importantly, this loop must check to see if $T_{d_{n}}$ has exceeded $T_G$, if this condition is met the loop must stop as the following results will be unphysical. 
+
+For plotting data the results have been non-dimensionalised. The points in time are non-dimensionalised with the particle relaxation time constant $\tau$. the temperature values can be non-dimensionalised with the steady state temperature by solving the uncoupled heat transfer equation for $T_d$ when $dT/dt$ is zero:
+\begin{subequations}
+\begin{align}
+\frac{dT_{d}}{dt} &= \frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d}) \\
+0 &= \frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d}) \\
+T_d &= T_G
+\end{align}
+\end{subequations}
+
+The results from a simulation run for one droplet of water evaporating in air for a time step of $\tau_d$ are shown in Figure \ref{temp_time_tau}. 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_Heat_Transfer_tau/Uncoupled_Heat_Transfer_tau.pdf}
+	\caption{$T_d$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$ and $\Delta t=tau_d$.}
+	\label{temp_time_tau}
+\end{figure}
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.7\textwidth]{temp_time_0_1.png}
+%	\caption{$T_d$ for a droplet sized $D=5mm$ with $Re_d=0$, $T_{d_0}=300K$, $T_G=350K$ and $\Delta t=0.1s$.}
+%	\label{temp_time_0.1}
+%\end{figure}
+
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.6\textwidth]{./Diagrams/Uncoupled_Heat_Transfer_Forward_Euler_100/Uncoupled_Heat_Transfer_Forward_Euler_100_error.pdf}
+%	\caption{Absolute error between the analytical and numerical solution for the simplified temperature ODE.}
+%	\label{temp_time_error_100}
+%\end{figure}
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.7\textwidth]{temp_time_error_0_1.png}
+%	\caption{Absolute error between the analytical and numerical solution for the simplified temperature ODE.}
+%	\label{temp_time_error_0.1}
+%\end{figure}
+As expected the first order implicit and explicit methods undershoot and overshoot the analytic solution respectively. This is because an explicit method makes an estimate of what the next value will be based on the current gradient. Given the gradient of the analytic solution is always decreasing this means the explicit method is always overestimating the value at the next timestep. A similar argument can be made for an implicit method.
+
+It can also be seen from Figure \ref{temp_time_tau} the droplet heats up to the gas temperature within just over $4\tau_h$. As $1/e^4$ is $\approx 2\%$ and the simulation stops once the droplet temperature has reached $99.9\%$ of the gas temperature this proves the droplet temperature increases at the correct rate.
+
+The timestep for example be halved to $\tau/2$ as in Figure \ref{temp_time_tau_2}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_Heat_Transfer_tau_2/Uncoupled_Heat_Transfer_tau_2.pdf}
+	\caption{$T_d$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$ and $\Delta t=\tau/2$.}
+	\label{temp_time_tau_2}
+\end{figure}
+
+Figure \ref{temp_time_tau_2} shows the numerical solutions are closer to the analytic solution compared with Figure \ref{temp_time_tau}. Therefore demonstrating the numerical solutions converge to the analytic solution as expected. 
+
+This convergence is highlighted by Figure \ref{uc_temp_convergence}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_Temp_Convergence/Uncoupled_Temp_Convergence.pdf}
+	\caption{Average percentage error compared with the analytic solution for a range of timesteps and numerical methods.}
+	\label{uc_temp_convergence}
+\end{figure}
+
+for a timestep very close to zero all the numerical methods appear to have the same average percentage error. This should be zero but is actually $0.3\%$. This is quite an unusual result, especially when considering the average percentage error decreases with increasing timestep for the modified Euler and Runge-Kutta methods. 
+
+This turned out not to be a bug in a code but a bug in the method used for benchmarking the statistics. The simulation stops once $T_d = 0.999T_G$. Removing this stop condition and fixing the simulation lengths using the max number of timesteps produces statistics that make sense:
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_Temp_Convergence_2/Uncoupled_Temp_Convergence_2.pdf}
+	\caption{Average percentage error compared with the analytic solution for a range of timesteps and numerical methods.}
+	\label{uc_temp_convergence_2}
+\end{figure}
+
+The simulation duration was fixed to $tau_d$ and the number of timesteps calculated by dividing this by the timestep size. As Figure \ref{uc_temp_convergence_2} shows all methods converge to zero error with a timestep size of zero. The forward Euler method has perfect linearity with a $R^2$ value of $0.9998$ as calculated by Excel. The backward Euler method has a slightly smaller error, but again has good linearity with $R^2=0.9996$. The modified Euler and Runge-Kutta methods now have noticeably different gradients for their error plots. It is just possible to distinguish that the modified Euler method has a quadratic error function, with $R^2=0.9996$. Due to how small the average percentage error of the Runge-Kutta method is this has also been plotted separately on Figure \ref{uc_temp_convergence_3}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_Temp_Convergence_2/Uncoupled_Temp_Convergence_3.pdf}
+	\caption{Average percentage error compared with the analytic solution for the Runge-Kutta method for a range of timesteps.}
+	\label{uc_temp_convergence_3}
+\end{figure}
+
+The average percentage error as a function of the timestep for the Runge-Kutta method is a quartic as expected given the method is fourth-order. The statistics are again well behaved with $R^2=1.000$. 
+
+$R^2$ values close to $1$ demonstrate the numerical methods have been implemented correctly as their results are to the correct order. Moreover, as the results for all numerical methods converge to the analytic solution for decreasing timestep size this verifies they are solving the uncoupled temperature case correctly.
+
+%The average error between the analytic solution and the numerical solutions for different size timesteps and for different numerical methods:
+%
+%Figure
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.7\textwidth]{temp_time_0_01.png}
+%	\caption{$T_d$ for a droplet sized $D=5mm$ with $Re_d=0$, $T_{d_0}=300K$, $T_G=350K$ and $\Delta t=0.01s$.}
+%	\label{temp_time_0.01}
+%\end{figure}
+
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.6\textwidth]{./Diagrams/Uncoupled_Heat_Transfer_Forward_Euler_10/Uncoupled_Heat_Transfer_Forward_Euler_10_error.pdf}
+%	\caption{Absolute error between the analytical and numerical solution for the simplified temperature ODE.}
+%	\label{temp_time_error_10}
+%\end{figure}
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.7\textwidth]{temp_time_error_0_01.png}
+%	\caption{Absolute error between the analytical and numerical solution for the simplified temperature ODE.}
+%	\label{temp_time_error_0.01}
+%\end{figure}
+
+\newpage
+
+\subsection{Uncoupled Mass Transfer}
+The mass transfer equation is:
+\begin{equation}
+\frac{dm_d}{dt} = -\frac{Sh}{3Sc_G}\frac{m_d}{\tau_d}H_M
+\label{mass3}
+\end{equation}
+
+%An analytical solution for the mass transfer can be found in a similar manner to the heat transfer. Define a constant $A$ that contains all constant terms:
+%\begin{equation}
+%A = \frac{Sh}{3Sc_G}\frac{H_M}{\tau_d}
+%\end{equation}
+%
+%Therefore:
+%\begin{subequations}
+%\begin{eqnarray}
+%\frac{dm_d}{dt} &= -Am_d \\
+%\int_{m_{d_n}}^{m_{d_{n+1}}} \frac{dm_d}{m_d} &= - \int_{0}^{\Delta t} A~dt \\
+%m_{d_{n+1}} &= m_{d_n} e^{-A\Delta t} \\
+%m_{d_{n+1}} &= m_{d_n} e^{-\frac{Sh}{3Sc_G}\frac{H_M}{\tau_d}\Delta t} 
+%\end{eqnarray}
+%\end{subequations}
+
+%A numerical solution given by the forward Euler method is:
+%\begin{equation}
+%m_{d_{n+1}} = m_{d_n} + \Delta t \left(-\frac{Sh}{3Sc_G}\frac{m_{d_n}}{\tau_d}H_M\right) 
+%\end{equation}
+%
+%The time stepping process in Figure \ref{mass_numeric} is similar to the one used for the heat transfer solution.
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.5\textwidth]{./Diagrams/Uncoupled_Mass_Transfer_Forward_Euler_Flowchart/Uncoupled_Mass_Transfer_Forward_Euler_Flowchart.pdf}
+%	\caption{Flowchart for the heat transfer time stepping process for the forward Euler method.}
+%	\label{mass_numeric}
+%\end{figure}
+
+The literature commonly plots $D^2$ instead of mass, solving equation \ref{mass3} for diameter, requires a relation between diameter $D$ and $m_d$:
+\begin{subequations}
+	\begin{align}
+	m_d =& \rho_d V_d \\
+	m_d =& \rho_d \left(\frac{4}{3}\right) \pi \left(\frac{D}{2}\right)^3 \\
+	m_d =& \frac{\rho_d \pi D^3}{6}
+	\end{align}
+	\label{mass_diameter}
+\end{subequations}
+
+So:
+\begin{equation}
+\frac{dm_d}{dt} = \frac{\rho_d \pi D^2}{2}\frac{dD}{dt}
+\end{equation}
+
+These can be substituted into equation \ref{mass3}, along with $\tau_d = \rho_d D^2/(18\mu_g)$:
+\begin{subequations}
+\begin{align}
+\frac{dm_d}{dt} =& -\frac{Sh}{3Sc_G}\frac{m_d}{\tau_d}H_M \\
+\frac{\rho_d \pi D^2}{2}\frac{dD}{dt} =& -\frac{Sh}{3Sc_G}\frac{18 \rho_d \pi D^3 \mu_g}{6\rho_d D^2}H_M \\
+\frac{1}{2}\left[D^2_{n+1} - D^2_n\right] =& -\frac{2Sh}{Sc_G\rho_d }\mu_g H_M ~\Delta t \\
+D^2_{n+1} =& D_n^2 -\frac{4Sh}{Sc_G\rho_d }\mu_g H_M ~\Delta t
+\end{align}
+\end{subequations}
+
+A numerical solution to the $D^2$ ODE can be found as:
+\begin{equation}
+D_{n+1} = D_n-\Delta t\left(\frac{2Sh}{Sc_G\rho_d }\mu_g H_M \frac{1}{D_n}\right)
+\end{equation}
+
+A rearrangement of equation \ref{mass_diameter} gives the droplet diameter as:
+\begin{subequations}
+\begin{align}
+m_d =& \frac{\rho_d \pi D^3}{6} \\
+D = & \left(\frac{6}{\rho_d \pi}\right)^{1/3} \left(m_d\right)^{1/3}
+\end{align}
+\end{subequations}
+ 
+Therefore:
+\begin{subequations}
+\begin{align}
+\frac{dm_d}{dt} =& -\frac{Sh}{3Sc_G}\frac{m_d}{\tau_d}H_M \\
+\frac{dm_d}{dt} =& -\frac{Sh}{3Sc_G} H_M m_d\left(\frac{18\mu_G}{\rho_d D^2}\right)\\
+\frac{dm_d}{dt} =& -\frac{Sh}{3Sc_G} H_M m_d\left(\frac{18\mu_G}{\rho_d}\right)\left(\left(\frac{6}{\rho_d \pi}\right)^{-2/3} \left(m_d\right)^{-2/3}\right)\\
+\left({m_d}_{n+1}\right)^{2/3} =& \left({m_d}_{n}\right)^{2/3} - \frac{2Sh}{3Sc_G}\mu_G H_M \left(\frac{6}{\rho_d}\right)^{1/3}\pi^{2/3} ~ \Delta t
+\end{align}
+\end{subequations}
+
+The full integration steps for the mass and diameter equations are given in Section \ref{uc_mass_dev}.
+
+Calculating $H_M$:
+\begin{equation}
+H_M=\ln\left[1+B_{M,eq}\right]
+\end{equation}
+
+Where $B_{M,eq}$ is the Spalding transfer number for mass transfer given by:
+\begin{equation}
+B_{M,eq} = \frac{Y_{s,eq}-Y_G}{1-Y_{s,eq}}
+\end{equation}
+
+With $Y_G$ the free stream vapour mass fraction and $Y_{s,eq}$ the vapour mass fraction at the droplet's surface:
+\begin{equation}
+Y_{s,eq} = \frac{\chi_{s,eq}}{\chi_{s,eq}+(1-\chi_{s,eq})\theta_2}
+\end{equation}
+
+$\chi_{s,eq}$ is the surface equilibrium mole fraction of the vapour and $\theta_2$ is the ratio of molecular weights:
+
+\begin{equation}
+\theta_2=\frac{W_C}{W_V}
+\end{equation}
+
+For water evaporating in air $W_V=18.015~kg/(kg~mole)$ is the molecular weight of water vapour and $W_C=28.97~kg/(kg~mole)$ is the molecular weight of air. So $\theta_2=1.61$.
+
+The Clausius-Clapeyron equation for constant latent heat gives a relation between the saturation pressure $P_{sat}$ and the free stream pressure $P_G$ as:
+
+\begin{subequations}
+\begin{align}
+\chi_{s,eq} =& \frac{P_{sat}}{P_G} \\
+\chi_{s,eq} =& \frac{P_{atm}}{P_G}\exp \left[\frac{L_V}{\bar{R}/W_V}\left(\frac{1}{T_B}-\frac{1}{T_d}\right)\right] 
+\end{align}
+\end{subequations}
+
+Where:
+\begin{multicols}{2}
+\begin{itemize}
+	\item $P_{atm}=101325~Pa$
+	\item $P_G=\rho_G RT_G=(1.225~kg/m^3)(287~J/kg~k)(298~K)=104769~Pa$
+	\item $\bar{R}=8.3145~J/(K~mole)=8314.5~J/(K~kg~mol)$
+	\item $L_V=2.257\times10^6+2.595\times10^3(373.15-T)~J/kg$ Latent heat of evaporation for water
+	\item $T_B=373.15~K$ boiling temperature of water
+\end{itemize}
+\end{multicols}
+
+The conditions used:
+
+\begin{multicols}{2}
+\begin{itemize}
+	\item Droplet species - water
+	\item Gas species - air
+	\item $m_{d,0}=0.001~kg$
+	\item $D_{d,0}=1.24~mm$
+	\item $T_G=365~K$
+	\item $T_{d,0}=350~K$
+	\item $Re_d=0$
+	\item $L_V=2.45\times10^6~J/kg$  using $T=T_G$
+\end{itemize}
+\end{multicols}
+
+This gives $\chi_{s,eq}$ as:
+
+\begin{subequations}
+\begin{align}
+\chi_{s,eq} =& \frac{101325~Pa}{104769~Pa}\exp \left[\frac{2.45\times10^6~J/kg}{8314.5~J/(K~kg~mol)/18.015~kg/(kg~mole)}\left(\frac{1}{373.15~K}-\frac{1}{365~K}\right)\right] \\
+\chi_{s,eq} =& 0.967\exp \left[(5308~K )(-5.98\times 10^{-5}~/K)\right] \\
+\chi_{s,eq} =& 0.967\exp [-0.318] \\
+\chi_{s,eq} =& 0.704
+\end{align}
+\end{subequations}
+
+Therefore $Y_{s,eq}$ is:
+\begin{subequations}
+\begin{align}
+Y_{s,eq} =& \frac{\chi_{s,eq}}{\chi_{s,eq}+(1-\chi_{s,eq})\theta_2} \\
+Y_{s,eq} =& \frac{0.704}{0.704+(1-0.704)1.61} \\
+Y_{s,eq} =& 0.596
+\end{align}
+\end{subequations}
+
+And:
+\begin{subequations}
+\begin{align}
+B_{M,eq} =& \frac{Y_{s,eq}-Y_G}{1-Y_{s,eq}} \\
+B_{M,eq} =& \frac{0.596-0}{1-0.596} \\
+B_{M,eq} =& 1.48
+\end{align}
+\end{subequations}
+
+Finally:
+\begin{subequations}
+\begin{align}
+H_M =& \ln\left[1+B_{M,eq}\right] \\
+H_M =& \ln\left[1+1.48\right] \\
+H_M =& 0.908
+\end{align}
+\end{subequations}
+
+The mass transfer solution has been plotted in Figure \ref{diameter_squared_time_tau} for $\Delta t=tau_d$. For the numerical solution $\tau_d$ was recalculated at the start of each timestep. At the end of each timestep the mass value is used to calculate $D^2$, which is non-dimensionalised with the start diameter. 
+
+The solution from the modified Euler and Runge-Kutta methods have been plotted separately on Figure \ref{diameter_squared_time_2_tau}.
+%\begin{figure}[h]
+%	\centering
+%	\includegraphics[width=0.8\textwidth]{mass_time_50_nd.png}
+%	\caption{$m_d$ for a droplet sized $D=1.24mm$ with $Re_d=0$, $T_{d_0}=350K$, $T_G=365K$, $Y_G=0$ and $\Delta t=5s$.}
+%	\label{mass_time}
+%\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_D2_Transfer_tau/Uncoupled_D2_Transfer_tau.pdf}
+	\caption{Non-dimensionalised $D^2$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282$, $T_G=298$, $Y_G=0$ and $\Delta t=\tau_d$.}
+	\label{diameter_squared_time_tau}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_D2_Transfer_tau/Uncoupled_D2_Transfer_2_tau.pdf}
+	\caption{Non-dimensionalised $D^2$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282$, $T_G=298$, $Y_G=0$ and $\Delta t=\tau_d$.}
+	\label{diameter_squared_time_2_tau}
+\end{figure}
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width=0.8\textwidth]{diameter_squared_50_nd.png}
+%	\caption{$D^2$ for a droplet sized $D=1.24mm$ with $Re_d=0$, $T_{d_0}=350K$, $T_G=365K$, $Y_G=0$ and $\Delta t=5s$.}
+%	\label{diameter_squared_time}
+%\end{figure}
+
+Much like was the case for the temperature solution the explicit methods overshoot the analytic solution. The exception being the forward Euler method under-predicts the analytic solution and appears to better predict the the analytic solution. The droplet evaporation time has been non-dimensionalised with the initial droplet momentum timescale as this changes as the droplet's mass decreases.
+
+Note that unlike the heat transfer solution the results of the mass transfer plotted as diameter squared give a linear relation. This is intrinsic to the assumption the droplet temperature remains at the wet bulb temperature. Therefore the rate of evaporation is only dependent on surface area which is a function of $D^2$.
+
+To confirm the numerical methods converge to the analytic solution a similar convergence plot to Figure \ref{uc_temp_convergence_2} has been plotted in Figure \ref{uc_d2_convergence}. For this convergence test the simulation time was limited by the mass stop condition.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_D2_Convergence/Uncoupled_D2_Convergence.pdf}
+	\caption{Average percentage error compared with the analytic solution for a range of numerical methods and timesteps.}
+	\label{uc_d2_convergence}
+\end{figure}
+
+As should be the case all the numerical methods converge to zero percentage error for a timestep of zero. What is unusual is the modified Euler and Runge-Kutta methods have a slightly larger error than the forward Euler method. This may be because the high order methods are multistep. At each step within the method a prediction about what the solution is, is made. For all steps the same $\tau_d$ is used. This would explain why the modified Euler and Runge-Kutta methods have such a similar error function.
+
+This can be fixed by updating $\tau_d$ for each step which as can be seen in Figure \ref{uc_d2_convergence_2} and \ref{uc_d2_convergence_3} the error functions are now as expected.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_D2_Convergence_2/Uncoupled_D2_Convergence_2.pdf}
+	\caption{Average percentage error compared with the analytic solution for a range of numerical methods and timesteps.}
+	\label{uc_d2_convergence_2}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Uncoupled_D2_Convergence_2/Uncoupled_D2_Convergence_3.pdf}
+	\caption{Average percentage error compared with the analytic solution for the Runge-Kutta method and a range of timesteps.}
+	\label{uc_d2_convergence_3}
+\end{figure}
+
+Like with the temperature convergence the $R^2$ values for the $D^2$ error functions can be calculated. They are as follows:
+\begin{itemize}
+	\item Forward Euler - $R^2=0.9976$
+	\item Backward Euler - $R^2=0.9999$
+	\item Modified Euler - $R^2=1.000$
+	\item Runge-Kutta - $R^2=1.000$
+\end{itemize}
+
+This affirms the numerical methods perform as expected.
+
+The verification tests here confirm the importance of verifying simulation code to find bugs.
+
+\newpage
+
+\subsection{Coupled Heat and Mass Transfer}
+Solving the heat and mass transfer ODEs coupled is not a trivial task due to their non-linear nature. An analytic solution for the ODEs coupled has not been found so the equations can only be solved numerically. 
+
+The following figures use the data from Miller et al. corresponding to Figure 2 in that paper. The testing procedure is the same as for the uncoupled cases. With multiple numerical methods and timestep sizes being tested.
+
+ Figures \ref{heat_mass_euler_0_01_mass_lim_mass} and \ref{heat_mass_euler_0_01_mass_lim_temp} show the results for a forward Euler method and Figures \ref{heat_mass_runge_kutta_0_01_mass_lim_mass} and \ref{heat_mass_runge_kutta_0_01_mass_lim_temp} show the results for a fourth order Runge-Kutta method. For both methods a timestep of $0.01s$ was used
+
+Figures \ref{heat_mass_runge_kutta_deltat_mass_lim_mass} and \ref{heat_mass_runge_kutta_deltat_mass_lim_temp} shows the effect of increasing the timestep  $\Delta t$.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Coupled_Heat_Mass_Transfer_tau_8/Coupled_d2_Transfer_tau_8.pdf}
+	\caption{$D^2$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$, $Y_G=0$ and $\Delta t=\tau_d/8$.}
+	\label{coupled_d2_tau_8}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Coupled_Heat_Mass_Transfer_tau_8/Coupled_Heat_Transfer_tau_8.pdf}
+	\caption{$T_d$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$, $Y_G=0$ and $\Delta t=\tau_d/8$.}
+	\label{coupled_heat_tau_8}
+\end{figure}
+
+The droplet quickly reaches an equilibrium temperature of $282.27K$ and remains at this temperature as the droplet evaporates at a steady rate. There is little variation between the numerical methods, but this becomes more evident if the timestep is reduced. Using a timestep of $\tau_d/2$ it can be seen the explicit methods diverge quite significantly at the end of the simulation in Figures \ref{coupled_d2_tau_2} and \ref{coupled_heat_tau_2}. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Coupled_Heat_Mass_Transfer_tau_2/Coupled_d2_Transfer_tau_2.pdf}
+	\caption{$D^2$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$, $Y_G=0$ and $\Delta t=\tau_d/2$.}
+	\label{coupled_d2_tau_2}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Coupled_Heat_Mass_Transfer_tau_2/Coupled_Heat_Transfer_tau_2.pdf}
+	\caption{$T_d$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$, $Y_G=0$ and $\Delta t=\tau_d/2$.}
+	\label{coupled_heat_tau_2}
+\end{figure}
+
+Plotting the results non-dimensionally using $\tau_d$ makes it clear what causes this:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Coupled_Heat_Mass_Transfer_tau_2_nd/Coupled_d2_Transfer_tau_2_nd.pdf}
+	\caption{$D^2$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$, $Y_G=0$ and $\Delta t=\tau_d/2$.}
+	\label{coupled_d2_tau_2_nd}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Diagrams/Coupled_Heat_Mass_Transfer_tau_2_nd/Coupled_Heat_Transfer_tau_2_nd.pdf}
+	\caption{$T_d$ for a droplet sized $D^2=1.1mm$ with $Re_d=0$, $T_{d_0}=282K$, $T_G=298K$, $Y_G=0$ and $\Delta t=\tau_d/2$.}
+	\label{coupled_heat_tau_2_nd}
+\end{figure}
+
+The momentum timescale of the droplet, $\tau_d$ decreases as the droplet diameter decreases. This means the timescale of the physics increases relative to the size of the timestep as the ODEs are a function of $1/\tau_d$. As explicit methods extrapolate based on the current value to find the next value; the error incurred in the extrapolation increases with the size of timestep. A solution to this problem is dynamic timestepping which involves changing the size of the timestep as a function of $\tau_d$. For one droplet this procedure is simple enough, but for multiple droplets the timestep is common across all droplets. This means basing the timestep size on the smallest droplet timescale, which could be very inefficient. Consider a scenario where one droplet at the start of the simulation a droplet rapidly evaporates, this means a small timestep size for droplets which may be very slowly evaporating. 
+
+Therefore, an appropriate solution is to use an implicit method. The backward Euler method is appropriate to use here given it does not suffer the same instability as the explicit methods. Further, it permits the usage of larger timesteps which is advantageous in reducing computation time. Other higher order implicit methods are available, but at the cost of an iterative procedure at each timestep to solve the equations. Therefore the implicit Euler method will be used for the OpenCL simulation code. 
+\end{document}

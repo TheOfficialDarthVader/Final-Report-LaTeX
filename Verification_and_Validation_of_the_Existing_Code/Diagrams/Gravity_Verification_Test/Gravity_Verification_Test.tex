@@ -1,0 +1,52 @@
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{
+	compat=1.9,
+	legend entry/.initial=,
+	every axis plot post/.code={%
+		\pgfkeysgetvalue{/pgfplots/legend entry}\tempValue
+		\ifx\tempValue\empty
+		\pgfkeysalso{/pgfplots/forget plot}%
+		\else
+		\expandafter\addlegendentry\expandafter{\tempValue}%
+		\fi
+	},
+}
+
+\pgfplotsset{every axis legend/.style={
+		cells={anchor=center},% Centered entries
+		inner xsep=3pt,inner ysep=2pt,nodes={inner sep=2pt,text depth=0.15em},
+		anchor=south east,
+		shape=rectangle,
+		fill=white,
+		draw=black,
+		font=\tiny,
+		at={(0.98,0.7)}
+	}
+}
+\begin{document}
+\pgfplotsset{set layers}
+
+\begin{tikzpicture}
+	\begin{axis}[
+	axis lines=middle,
+	thick,
+	xmin=0, xmax=10,
+	ymin=0, ymax=1,
+	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
+	extra y ticks=0, extra y tick labels=$0$, extra y tick style={grid=none},
+	x tick label style={/pgf/number format/.cd,%
+		scaled x ticks = false,
+		set thousands separator={},
+		fixed},
+	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
+	xlabel={$t/\tau_{d}$},
+	ylabel={$u/u_{final}$}
+	]
+	\addplot[black, legend entry=Analytic solution] table[x=time, y=y_vel_an] {uc_an_vel_transfer_time_step_tau_8_nd.txt};
+	\addplot[dashed, blue, legend entry={$\Delta t = \tau/8$}] table[x=time, y=y_vel_num] {uc_num_vel_transfer_time_step_tau_8_nd.txt};
+	\addplot[dashed, green, legend entry={$\Delta t = \tau/2$}] table[x=time, y=y_vel_num] {uc_num_vel_transfer_time_step_tau_2_nd.txt};
+	\end{axis}
+\end{tikzpicture}
+\end{document}

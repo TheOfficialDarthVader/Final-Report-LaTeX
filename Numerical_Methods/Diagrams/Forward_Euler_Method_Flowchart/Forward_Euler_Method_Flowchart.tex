@@ -1,0 +1,10 @@
+\documentclass[tikz]{standalone}
+\usetikzlibrary{shapes.geometric, arrows,fit,matrix,positioning,shapes.multipart}
+\usetikzlibrary{positioning}
+\begin{document}
+\tikzstyle{processODE} = [rectangle, minimum width=4cm, minimum height=2cm, text centered, draw=black, fill=blue!30]
+\begin{tikzpicture}[node distance=3cm]
+	% Place nodes
+	\node (pro) [processODE, align=center] {$\phi_{n+1}=\phi_n+\Delta tf(t_n,\phi_n)$};
+\end{tikzpicture}
+\end{document}

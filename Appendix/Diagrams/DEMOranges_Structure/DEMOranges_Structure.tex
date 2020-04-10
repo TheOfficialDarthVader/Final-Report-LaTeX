@@ -1,0 +1,226 @@
+\documentclass[border=5pt]{standalone}
+\usepackage[edges]{forest}
+
+\definecolor{folderbg}{RGB}{124,166,198}
+\definecolor{folderborder}{RGB}{110,144,169}
+\definecolor{clfilebg}{RGB}{214, 72, 36}
+\definecolor{hfilebg}{RGB}{80, 214, 36}
+
+\def\Size{4pt}
+\tikzset{
+  folder/.pic={
+    \filldraw[draw=folderborder,top color=folderbg!50,bottom color=folderbg]
+      (-1.05*\Size,0.2\Size+5pt) rectangle ++(.75*\Size,-0.2\Size-5pt);  
+    \filldraw[draw=folderborder,top color=folderbg!50,bottom color=folderbg]
+      (-1.15*\Size,-\Size) rectangle (1.15*\Size,\Size);
+  },
+  clfile/.pic={%
+	\filldraw [draw=folderborder, top color=clfilebg!10, bottom color=clfilebg!50] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
+  },
+  cfile/.pic={%
+  	\filldraw [draw=folderborder, top color=folderbg!10, bottom color=folderbg!50] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
+  },
+  hfile/.pic={%
+	\filldraw [draw=folderborder, top color=hfilebg!10, bottom color=hfilebg!50] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
+  }	
+}
+
+\begin{document}
+
+\begin{forest}
+  for tree={
+  	font=\ttfamily,
+  	grow'=0,
+%  	where level=0{
+%  		l sep'=0.1cm,
+%  		s sep'=0.5cm,
+%  	}{
+%  		grow'=0,
+%  	},
+  	child anchor=west,
+  	parent anchor=south,
+  	anchor=west,
+  	calign=first,
+  	inner xsep=7pt,
+  	forked edges,
+  	edge path={
+  		\noexpand\path [draw, \forestoption{edge}]
+  		(!u.south west) +(7.5pt,0) |- (.child anchor) pic {folder} \forestoption{edge label};
+  	},
+  	clfile/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+  		(!u.south west) +(7.5pt,0) |- (.child anchor) pic {clfile} \forestoption{edge label};},
+  		inner xsep=6pt,font=\small\ttfamily
+  	},
+  	cfile/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+  		(!u.south west) +(7.5pt,0) |- (.child anchor) pic {cfile} \forestoption{edge label};},
+  		inner xsep=6pt,font=\small\ttfamily
+ 	},
+	hfile/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+		(!u.south west) +(7.5pt,0) |- (.child anchor) pic {hfile} \forestoption{edge label};},
+		inner xsep=6pt,font=\small\ttfamily
+	},
+  	before typesetting nodes={
+  		if n=1
+  		{insert before={[,phantom]}}
+  		{}
+  	},
+  	fit=band,
+  	before computing xy={l=15pt},
+  }  
+[DEMOranges
+  [kernels
+    [get\_gravity
+      [diag\_gravity.cl, clfile
+      ]
+      [point\_gravity.cl, clfile
+      ]
+      [no\_gravity.cl, clfile
+      ]
+    ]
+    [get\_vel\_fluid
+      [no\_drag.cl, clfile
+      ]
+      [tgv.cl, clfile
+      ]
+      [x\_1\_drag.cl, clfile
+      ]
+    ]
+    [assign\_particles.cl, clfile
+    ]
+    [calculate\_pp\_collision.cl, clfile
+    ]
+    [calculate\_pw\_collision.cl, clfile
+    ]
+    [iterate\_particle.cl, clfile
+    ]
+    [make\_pp\_collisions.cl, clfile
+    ]
+  ]
+  [sims
+    [simRunner
+      [simRunner.c, cfile
+      ]
+      [simRunner.h, hfile
+      ]
+    ]
+    [box.c, cfile
+    ]
+    [hourglass.c, cfile 
+    ]
+    [multi\_tgv\_periodic.c, cfile
+    ]
+    [particle\_ball.c, cfile
+    ]
+    [tgv\_box.c, cfile
+    ]
+    [tgv\_periodic.c, cfile
+    ]
+  ]
+  [structures
+  	[particle.h, hfile
+  	]
+  	[wall.h, hfile
+  	]
+  	[collision.h, hfile
+  	]
+  ]
+  [tests
+  	[run\_tests
+  	  [run\_tests.c, cfile
+  	  ]
+  	  [run\_tests.h, hfile
+  	  ]
+  	]
+  	[test\_alignment
+  	  [alignment\_test\_kernels.cl, clfile
+  	  ]
+  	  [test\_alignment.c, cfile
+  	  ]
+  	  [test\_alignment.h, hfile
+  	  ]
+  	]
+  	[test\_assign\_particles
+  	  [test\_assign\_particles.c, cfile
+  	  ]
+  	  [test\_assign\_particles.h, hfile
+  	  ]
+  	]
+  	[test\_atomics
+  	  [test\_atomics.cl, clfile
+  	  ]
+  	  [test\_atomics.c, cfile
+  	  ]
+  	  [test\_atomics.h, hfile
+  	  ]
+  	]
+  	[test\_kernels
+  	  [test\_kernels.c, cfile
+  	  ]
+  	  [test\_kernels.h, hfile
+  	  ]
+  	]
+  	[test\_make\_pp\_collisions
+  	  [test\_make\_pp\_collisions.c, cfile
+  	  ]
+  	  [test\_make\_pp\_collisions.h, hfile
+  	  ]
+  	]
+  	[test\_setContext
+  	  [test\_setContext.c, cfile
+  	  ]
+  	  [test\_setContext.h, hfile
+  	  ]
+  	]
+  	[standalone\_tests.c, cfile
+  	]
+ ]
+ [util
+  	[clUtils
+  	  [clUtils.c, cfile
+  	  ]
+  	  [clUtils.h, hfile
+  	  ]
+  	]
+  	[collisionUtils
+  	  [collisionUtils.c, cfile
+  	  ]
+  	  [collisionUtils.h, hfile
+  	  ]
+  	]
+  	[cvUtils
+  	  [cvUtils.c, cfile
+  	  ]
+  	  [cvUtils.h, hfile
+  	  ]
+  	]
+  	[particleUtils
+  	  [particleUtils.c, cfile
+  	  ]
+  	  [particleUtils.h, hfile
+  	  ]
+  	]
+  	[simUtils
+  	  [simUtils.c, cfile
+  	  ]
+  	  [simUtils.h, hfile
+  	  ]
+  	]
+  	[vectorUtils
+  	  [vectorUtils.c, cfile
+  	  ]
+  	  [vectorUtils.h, hfile
+  	  ]
+  	]
+  	[wallUtils
+  	  [wallUtils.c, cfile
+  	  ]
+  	  [wallUtils.h, hfile
+  	  ]
+  	]
+  	[kernelUtils.cl, clfile
+  	]
+ ]
+]
+\end{forest}
+
+\end{document}

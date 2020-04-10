@@ -1,0 +1,17 @@
+\documentclass[../Interim_Report_Master]{subfiles}
+\begin{document}
+\hypertarget{intro}{\section*{Introduction}\label{intro}}
+This individual project builds off an individual project from two years ago titled ``GPU Enabled Analysis of Agglomeration in Large Particle Populations''. The goal of that project was to simulate up to $10^7$ particles in a fluid including particle collisions, to observe how agglomerates form. As well as to vary the simulation properties and to do statistical analysis of the resulting agglomerate properties \cite{Elijah_GPU_Report}. 
+
+This individual project is titled ``Analysis of Kerosene Particle Evaporation for Large Particle Populations Using GPUs and the OpenCL language''. With the aim to simulate the evolution of heat and mass transfer for $10^6$ particles using GPUs. The objectives required for this are:
+\begin{enumerate}
+	\item Run the previous code and test it.
+	\item Compute coupled heat and mass transfer of a single Kerosene particle.
+	\item Run large scale simulations (1 million particles). This could lead into post-processing of the results. For example, generating probability density functions.
+\end{enumerate}
+
+Objective 1 is imperative as the code produced from objective 2 will be added into the main time loop in the previous code. Objective 1 and 2 can run in parallel though; the aim is to first develop a suitable numerical model for simulating the heat and mass transfer of the particle in Python. This does not require the previous project's code, although the final code required for the large scale simulations will be required to work with the existing code. This approach reduces the risk of the project timelines slipping. Because if progress is slower than expected on one objective, more focus can be given to the other objective, allowing the project to continue to advance. Objective 3 requires both objective 1 and 2 to be completed, the post-processing of results etc. . . is a stretch goal for the project if time permits.
+
+This report first introduces literature fundamental to the project and reviews the content of the literature. As well as explain the fundamental maths and physics that governs the simulation of the particles. The next section evaluates methods for implementing the models. 
+\end{document}
+

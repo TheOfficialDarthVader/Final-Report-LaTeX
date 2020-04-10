@@ -1,0 +1,37 @@
+\documentclass[tikz]{standalone}
+\usetikzlibrary{shapes.geometric, arrows,fit,matrix,positioning,shapes.multipart}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\begin{document}
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=4cm, minimum height=2cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=4cm, minimum height=2cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{processODE} = [rectangle, minimum width=4cm, minimum height=2cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{decision} = [diamond, minimum width=4cm, minimum height=2cm, text width=8em, text centered, draw=black, fill=green!30]
+\begin{tikzpicture}[node distance=3cm]
+	% Place nodes
+	\node (start) [startstop, align=center] {Start};
+	\node (pro1) [process, below of=start, align=center] {$\phi_n = \phi_0$ \\ $t_n = 0$\\$N=0$};
+	\node (dec1) [decision, below of=pro1, yshift=-1cm] {$N>\textrm{Max No. timesteps}$};
+	\node (dec2) [decision, below of=dec1, yshift=-1.8cm] {$\frac{\phi_n}{\phi_\infty}>0.999$};
+	\node (pro2) [process, right of=dec2, xshift=2cm, align=center] {$t_{n+1}=N/t_{div}$\\$\Delta t = t_{n+1}-t_n$};
+	\node (pro3) [processODE, above of=pro2, align=center] {ODE Solver};
+	\node (pro4) [process, above of=pro3, align=center] {$\phi_n=\phi_{n+1}$\\$t_{n}=t_{n+1}$\\$N=N+1$};
+	\node (stop) [startstop, below of=dec2, yshift=-1cm] {Stop};
+	
+	% Draw arrows
+	\draw [arrow] (start) -- (pro1);
+	\draw [arrow] (pro1) -- (dec1);
+	\draw [arrow] (dec1) -- (dec2) node [midway, right] (TextNode) {No};
+	\draw [arrow] (dec1.west) --+(-2,0) |- (stop.west);
+	\node [left of=dec1, above] {Yes};
+	\draw [arrow] (dec2) -- (pro2) node [midway, above] (TextNode) {No};
+	\draw [arrow] (dec2) -- (stop) node [midway, right] (TextNode) {Yes};
+	%\draw [arrow] (pro2.north) --+(0,0) |- (dec1.north);
+	\draw [arrow] (pro2) -- (pro3);
+	\draw [arrow] (pro3) -- (pro4);
+	\draw [arrow] (pro4.west) --+(0,0) |- (dec1.north);
+\end{tikzpicture}
+\end{document}

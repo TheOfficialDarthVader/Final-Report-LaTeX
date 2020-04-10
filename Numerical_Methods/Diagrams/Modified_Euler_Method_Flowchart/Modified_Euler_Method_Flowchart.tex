@@ -1,0 +1,16 @@
+\documentclass[tikz]{standalone}
+\usetikzlibrary{shapes.geometric, arrows,fit,matrix,positioning,shapes.multipart}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\begin{document}
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzstyle{processODE} = [rectangle, minimum width=8cm, minimum height=2cm, text centered, draw=black, fill=blue!30]
+\begin{tikzpicture}[node distance=3cm]
+	% Place nodes
+	\node (pro1) [processODE, align=center] {$\tilde{\phi}_{n+1}=\phi_n+\Delta tf\left(t_n,\phi_n\right)$};
+	\node (pro2) [processODE, below of=pro1, align=center] {$\phi_{n+1}=\phi_n+\frac{\Delta t}{2}\left(f\left(t_n,\phi_n\right)+f(t_{n+1},\tilde{\phi}_{n+1})\right)$};
+	
+	% Draw arrows
+	\draw [arrow] (pro1) -- (pro2);
+\end{tikzpicture}
+\end{document}

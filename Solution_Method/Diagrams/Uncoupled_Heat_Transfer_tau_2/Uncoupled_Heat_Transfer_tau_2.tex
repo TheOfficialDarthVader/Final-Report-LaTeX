@@ -1,0 +1,54 @@
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{
+	compat=1.9,
+	legend entry/.initial=,
+	every axis plot post/.code={%
+		\pgfkeysgetvalue{/pgfplots/legend entry}\tempValue
+		\ifx\tempValue\empty
+		\pgfkeysalso{/pgfplots/forget plot}%
+		\else
+		\expandafter\addlegendentry\expandafter{\tempValue}%
+		\fi
+	},
+}
+
+\pgfplotsset{every axis legend/.style={
+		cells={anchor=center},% Centered entries
+		inner xsep=3pt,inner ysep=2pt,nodes={inner sep=2pt,text depth=0.15em},
+		anchor=south east,
+		shape=rectangle,
+		fill=white,
+		draw=black,
+		font=\tiny,
+		at={(0.98,0.04)}
+	}
+}
+\begin{document}
+\pgfplotsset{set layers}
+
+\begin{tikzpicture}
+	\begin{axis}[
+	axis lines=middle,
+	thick,
+	xmin=0, xmax=6,
+	ymin=0, ymax=1,
+	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
+	extra y ticks=0, extra y tick labels=$0$, extra y tick style={grid=none},
+	x tick label style={/pgf/number format/.cd,%
+		scaled x ticks = false,
+		set thousands separator={},
+		fixed},
+	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
+	xlabel={$t/\tau_h$},
+	ylabel={$\frac{T_d - T_{d0}}{T_G-T_{d0}}$}
+	]
+	\addplot[black, legend entry=Analytic solution] table[x=time, y=temp_an] {uc_an_temp_transfer_time_step_tau_2.txt};
+	\addplot[dashed, blue, legend entry=Forward Euler] table[x=time, y=temp_fe] {uc_fe_temp_transfer_time_step_tau_2.txt};
+	\addplot[dashdotted, red, legend entry=Backward Euler] table[x=time, y=temp_be] {uc_be_temp_transfer_time_step_tau_2.txt};
+	\addplot[only marks, mark=o, green, legend entry=Modified Euler] table[x=time, y=temp_me] {uc_me_temp_transfer_time_step_tau_2.txt};
+	\addplot[only marks, mark=x, blue, legend entry=Fourth-order Runge-Kutta] table[x=time, y=temp_rk] {uc_rk_temp_transfer_time_step_tau_2.txt};
+	\end{axis}
+\end{tikzpicture}
+\end{document}

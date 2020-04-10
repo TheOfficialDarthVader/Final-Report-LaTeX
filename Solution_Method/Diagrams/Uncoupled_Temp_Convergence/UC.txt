@@ -1,0 +1,2 @@
+timestep_tau fe_error 
+0.1 0.595701953	

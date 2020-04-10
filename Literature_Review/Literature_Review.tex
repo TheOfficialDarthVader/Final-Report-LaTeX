@@ -1,0 +1,110 @@
+\documentclass[../Interim_Report_Master]{subfiles}
+\begin{document}
+\hypertarget{litrev}{\section{Literature Review}\label{litrev}}
+As previously mentioned this IP builds off a previous IP titled ``GPU Enabled Analysis of Agglomeration in Large Particle Populations''. The project developed simulation code in Python and OpenCL for simulating the collision and agglomeration of particles. This included a solution procedure for iterating the position and velocity of the particles \cite{Elijah_GPU_Report}. This project uses the code produced by this previous project but removes the Discrete Element Method (DEM) model for the collisions as this is computationally expensive.
+
+The key paper for this project with regards to simulating the heat and mass transfer processes is titled ``Evaluation of equilibrium and non-equilibrium evaporation models for many-droplet gas-liquid flow simulations'' by Miller, Harstad and Bellan. This paper is significant in that it details and compares eight different droplet evaporation models based on the same fundamental Lagrangian equations for droplet position, velocity, temperature and mass \cite{Miller1998}. The eight models in the paper are denoted by Mx where x is the model number. As will be justified in Section \ref{drop_mod} the model of choice for this project is M1 which is a form of the classical evaporation the earliest  model known as the infinite conductivity model. 
+
+\cite{Miller1998} is an unusually long paper although it presents some results that will be useful in validating the simulation code. Of note is Figure 2 with $Re=0$ which means terms involving convection (particularly in the Nusselt and Sherwood numbers) can be neglected. Which provides a simpler test case. Moderate gas and droplet temperatures were also used again making the results simpler. There does appear to be a typo however in the caption, the starting droplet diameter $D_0$ was reported to be $1.1~mm$ contradicting the data in the plot with $D^2$ at $t=0$ being $1.1~mm^2$. For using this test case later in the report it is assumed $D^2=1.1~mm^2$ with $D_0$ being $1.05mm$. This typo does not appear elsewhere in the paper, however. Although a key frustration in a paper that presents so many models is it can be hard to decipher how certain properties are evaluated. This issue is highlighted in a paper from the Center for Turbulence Research that evaluated how the definition of such properties affects the simulation sensitivity \cite{Shashank2011}. 
+
+One of the most recent citations uses models M1 and M2 to simulate the evaporation of fuel particles in flame combustion. However, it used $\frac{\beta}{e^{\beta}-1}$ instead of $1$ for one of the parameters $f_2$ \cite{SacomanoFilho2019}. Which as noted in \cite{Miller1998} was not considered commonly used at the time that paper was published. The paper also investigates the effect of setting the Lewis number, $Le$ to 1. It found that overall this assumption only increased the evaporation rate on the M2 model slightly. Although the effect was found to be more prominent for forced convection cases. In terms of the performance of the models the M1 model was found to more closely match experimental data for the forced convection of hexane. With $d_{p,0}=1.76mm$, $T=437K$ and $Re_0=110$. The same test for decane found that both models deviated from the experimental results but the M2 model was more accurate. For the decane case the conditions where $d_{p,0}=2.0mm$, $T=1000K$ and $Re_0=17$. The evaporation was for droplets in air. The experimental results are from \cite{Downing1966}, the same as those used in \cite{Miller1998}. This is a good indication the experimental data used in \cite{Miller1998} is still relevant.
+
+
+The models only form half of the solution with regards to simulating populations of particles. Equally of importance is the method by which the equations are to be solved. It has already been determined from \cite{Elijah_GPU_Report} the position and velocity equations are best solved numerically with an implicit method that gives higher than first order accuracy. A number of papers in the literature have used fourth order Runge-Kutta methods for solving the heat and mass equations \cite{Miller1998} \cite{salman2004} \cite{Kolaitis2006}. Older papers such as ``A Comparison of Vaporization Models in Spray Calculation'' by Aggarwal et al. use a second order Runge-Kutta method \cite{Aggarwal1984}. 
+
+%An exception is a paper on experimental and computational studies of liquid aerosol evaporation that used a forward Euler integration method for the time-dependent variables. 
+
+Examples of GPU simulation code in the literature seemed to be less common. Aforementioned papers have used CPU codes as the Lagrangian simulation of the droplet is normally coupled with a CFD code for the fluid. GPUs have been used to accelerate the particle Lagrangian equations, \cite{sweet2017} provides an in-depth analysis of this. The paper highlights the Lagrangian code is accelerated by up to 14 times compared with the original CPU code. Where GPUs have been used CUDA seemed to be the language of choice \cite{sweet2017} \cite{Zhang2018}. There have been studies using the Boltzmann Lattice Method that have used OpenCL \cite{Obrecht2015} \cite{verdier2020}. In terms of an implementation of the droplet evaporation model of the type presented here no implementations using OpenCL were found in the literature.
+
+%The purpose of this project is to evaluate the accuracy of those models with experimental data in existing literature which has not been done before.
+
+%The 8 models in \cite{Miller1998} are denoted by Mx where x is the model number. The 8 models are defined by the same four Lagrangian equations for the droplets:
+%
+%\begin{equation}
+%\frac{dX_{i}}{dt} = v_{i}
+%\label{vel}
+%\end{equation}
+%
+%\begin{equation}
+%\frac{dv_{i}}{dt} = \left(\frac{f_{1}}{\tau_{d}}\right)(u_{i}-v_{i}) + g_i
+%\label{accel}
+%\end{equation}
+%
+%\begin{equation}
+%\frac{dT_{d}}{dt} = \frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d}) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}
+%\label{temp}
+%\end{equation}
+%
+%\begin{equation}
+%\frac{dm_{d}}{dt} = -\frac{Sh}{3Sc_{G}}\left(\frac{m_{d}}{\tau_{d}}\right)H_M
+%\label{mass}
+%\end{equation}
+%
+%Equation \ref{vel} and a simpler form of equation \ref{accel} were used in the IP this project is based off. The differential equation for position was solved using the trapezoidal rule, as this method has second order accuracy and the result is a linear first order equation:
+%\begin{equation}
+%X_{n+1} = x_{n} + \frac{v_{n}+v_{n+1}}{2} \Delta t
+%\end{equation}
+%
+%\cite{Elijah_GPU_Report}
+%
+%For equation \ref{accel}, the acceleration of the droplet is defined using Stokes' Law which in its simplest form is given as:
+%
+%equation
+%
+%is dependent on three terms. Acceleration due to gravity \(g_{i}\), and the difference between the carrier gas velocity and the velocity of the particle, \(u_{i}-v_{i}\). The third term is a correction for Stokes drag that is dependent on the time constant for Stokes flow. This equation can be derived by considering the forces acting on the particle:
+%
+%equation
+%
+%A formulation for \(f_{1}\) is given in \cite{Miller1998} as:
+%
+%\begin{equation}
+%f_{1} = \frac{1+0.0545Re_{d}+0.1Re_{d}^{0.5}(1-0.03Re_{d})}{1+a|Re_{b}|^{b}}
+%\end{equation}
+%
+%Which is an empirical result produced from a data fit. It is therefore only applicable for specific conditions.
+%
+%What defines the models are the variables \(f_{1}\), \(f_{2}\), \(Nu\), \(Sh\) \(H_{\Delta T}\) and \(H_{M}\). Although the main variation in the models stems from \(f_{2}\), \(H_{\Delta T}\) and \(H_{M}\). M1 is the classical rapid mixing model derived on the assumption that $T_d$ is x. M2 will be ruled out for the purposes of this project as the $B'_T$ term in the evaporation correction $f_2$ must be solved iteratively at each timestep. This increases the computation overhead of the simulation which may be acceptable for a single droplet but will be problematic for large population of droplets.
+%
+%A more suitable model to provide a point of comparison in this case would be one of the mass analogy models, M3-M6. Which are derived from vapour mass fraction boundary condition at the droplet's surface. This assumes the droplet does not dissolve in the gas phase. These models use the same formulations for the surface vapour mass fraction ($Y_s$), Spalding transfer number for mass ($B_m$) and mass transfer potential ($H_{\Delta T}$). This will simplify producing code for an extra model. The choice of model depends on results that are available for comparison in literature. 
+%
+%Models M7 and M8, are to be ruled out as they use non-equilibrium formulations of the coefficients which would further complicate the code. 
+%
+%\begin{table}[h]
+%\centering
+%\begin{tabular*}{\textwidth}{c @{\extracolsep{\fill}} cccc}
+%	\hline
+%	\textbf{Model} & \textbf{Name} & \textbf{$f_2$} & \textbf{$H_{\Delta T}$} & \textbf{$H_M$} \\ \hline
+%	\textbf{M1} & Classical rapid mixing & $1$ & $0$ & $\ln \left[1+B_{M,eq}\right]$ \\[2ex] 
+%	\textbf{M2} & Abrmazon-Sirignano & $\frac{-\dot{m}_{d}}{{m}_{d}B'_{T}}\left[\frac{3Pr_{G}\tau_{d}}{Nu}\right]$ & $0$ & $\ln \left[1+B_{M,eq}\right]$ \\ \hline
+%\end{tabular*}
+%\caption{Detail of variables used in candidate models}
+%\end{table}
+%
+%One of the most recent citations uses Models M1 and M2 to simulate the evaporation of fuel particles in flame combustion. However, it uses \(\frac{\beta}{e^{\beta}-1}\) instead of \(1\) for \(f_{2}\) for M1 \cite{SacomanoFilho2019}. Which as noted in \cite{Miller1998} was not considered commonly used at the time that paper was published. The paper also investigates the effect of setting the Lewis number, $Le$ to 1. It found that overall this assumption only increased the evaporation rate on the M2 model slightly. Although the effect was found to be more prominent for forced convection cases. In terms of the performance of the models the M1 model was found to more closely match experimental data for the forced convection of hexane. With $d_{p,0}=1.76mm$, $T=437K$ and $Re_0=110$. The same test for decane found that both models deviated from the experimental results but the M2 model was more accurate. For the decane case the conditions where $d_{p,0}=2.0mm$, $T=1000K$ and $Re_0=17$. The evaporation was for droplets in air. The experimental results are from \cite{Downingm1966}, the same as those used in \cite{Miller1998}. This is a good indication that although the experimental data used in \cite{Miller1998} is still relevant if it is appearing in recent published work.
+%
+%\cite{Miller1998} is an unusually long paper although it presents some results that will be useful in validating the simulation code. Of note is Figure 2 with $Re=0$ which means terms involving convection (particularly in the Nusselt and Sherwood numbers) can be neglected. Which provides a simpler test case. Moderate gas and droplet temperatures were also used again making the results simpler. There does appear to be a typo however in the caption, the starting droplet diameter $D_0$ was reported to be $1.1~mm$ contradicting the data in the plot with $D^2$ at $t=0$ being $1.1~mm^2$. For using this test case later in the report it is assumed $D^2=1.1~mm^2$ with $D_0$ being $1.05mm$. This typo does not appear elsewhere in the paper, however.
+%
+%The models only form half of the solution with regards to simulating populations of particles. Equally of importance is the method by which the equations are to be solved. It has already been determined from \cite{Elijah_GPU_Report} the velocity and acceleration equations are best solved numerically with an implicit method that gives higher than first order accuracy. A number of papers in the literature have used fourth order Runge-Kutta methods for solving the heat and mass equations \cite{Miller1998}. An exception was a paper on experimental and computational studies of liquid aerosol evaporation that used a forward Euler integration method for the time-dependent variables. 
+
+%A paper titled ``comparative study of numerical models for Eulerian–Lagrangian simulations of turbulent evaporating sprays``. 
+
+%Potentially useful papers:
+%
+%Experimental and numerical investigation of droplet evaporation under diesel engine conditions
+%
+%``Evaporation of mono-disperse fuel droplets under high temperature and high pressure conditions is
+%investigated. The time-dependent growth of the boundary layer of the droplets and the influence of
+%neighbouring droplets are examined analytically. A transient Nusselt number is calculated from numerical
+%data and compared to the quasi-steady correlations available in literature. The analogy between heat and
+%mass transfer is tested considering transient and quasi-steady calculations for the gas phase up to the
+%critical point for a single droplet. The droplet evaporation in a droplet chain is examined numerically.
+%Experimental investigations are performed to examine the influence of neighbouring droplets on the drag
+%coefficients. The results are compared with drag coefficient models for single droplets in a temperature
+%range from \(T = 293 - 550 K\) and gas pressure \(p = 0.1 - 2 MPa\). The experimental data provide basis for model
+%validation in computational fluid dynamics.'' \cite{Fieberg2009}.
+%
+%Direct numerical simulation of a confined three-dimensional gas mixing layer with one evaporating hydrocarbon-droplet-laden stream
+%
+%``Direct numerical simulations are performed of a confined three-dimensional, temporally developing, initially isothermal gas mixing layer with one stream laden with as many as \(7.3\times10^5\) evaporating hydrocarbon droplets, at moderate gas temperature and subsonic Mach number. Complete two-way phase couplings of mass, momentum and energy are incorporated which are based on a thermodynamically self-consistent specification of the vapour enthalpy, internal energy and latent heat of vaporization. Effects of the initial liquid mass loading ratio (ML), initial Stokes number (St0), initial droplet temperature and flow three-dimensionality on the mixing layer growth and development are discussed. The dominant parameter governing flow modulation is found to be the liquid mass loading ratio. Variations in the initial Stokes number over the range 0:5 6 St0 6 2:0 do not cause significant modulations of either first- or second-order gas phase statistics. The mixing layer growth rate and kinetic energy are increasingly attenuated for increasing liquid loadings in the range 0 6 ML 6 0:35. The laden stream becomes saturated before evaporation is completed for all but the smallest liquid loadings owing to: (i) latent heat effects which reduce the gas temperature, and (ii) build up of the evaporated vapour mass fraction. However, droplets continue to be entrained into the layer where they evaporate owing to contact with the relatively higher-temperature vapour-free gas stream. The droplets within the layer are observed to be centrifuged out of high-vorticity regions and to migrate towards high-strain regions of the flow. This results in the formation of concentration streaks in spanwise braid regions which are wrapped around the periphery of secondary streamwise vortices. Persistent regions of positive and negative slip velocity and slip temperature are identified. The velocity component variances in both the streamwise and spanwise directions are found to be larger for the droplets than for the gas phase on the unladen stream side of the layer; however, the cross-stream velocity and temperature variances are larger for the gas. Finally, both the mean streamwise gas velocity and droplet number density profiles are observed to coincide for all ML when the cross-stream coordinate is normalized by the instantaneous vorticity thickness; however, first-order thermodynamic profiles do not coincide.''\cite{Miller1999}.
+\end{document}
+

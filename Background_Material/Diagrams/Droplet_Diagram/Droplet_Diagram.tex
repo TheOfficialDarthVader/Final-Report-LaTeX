@@ -1,0 +1,45 @@
+\documentclass{standalone}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+\begin{document}
+	%http://latexcolor.com/%
+	\definecolor{blizzardblue}{rgb}{0.67, 0.9, 0.93}
+	\definecolor{bostonuniversityred}{rgb}{0.8, 0.0, 0.0}
+	\definecolor{forestgreenweb}{rgb}{0.13, 0.55, 0.13}
+	\definecolor{gray}{rgb}{0.5, 0.5, 0.5}
+	
+	\begin{tikzpicture}[>=latex, shorten >=2pt, shorten <=2pt]
+	%droplet%
+	\filldraw[white!20!blizzardblue, draw=black, line width=1pt] (0,0) circle (2.5) ;
+	\filldraw[even odd rule, white!70!blizzardblue, draw=black, line width=1pt, dotted] (0,0) circle(2.5) (0,0) circle (4) ;
+	
+	%axis%
+	\draw[<->, line width=1pt] (0,6) node[above, rotate=90]{Mass Fraction} -- (0,0) node[left]{$0$} -- (6,0) node [below] {R};
+	\draw[->, line width=1pt] (-1,-0.1)--(-1,6) node[above, rotate=90]{Temperature};
+	
+	%lines on graphs%
+	\draw[-, bostonuniversityred] (-0.1,1)--(2.5,1) to[out=80, in=180] (4,4) -- (5,4);
+	\draw[-, forestgreenweb] (-0.1,3.2)--(2.55,3.2);
+	\draw[-, forestgreenweb] (2.45,2.8) to[out=-50, in=180] (4,1.2)--(5,1.2);
+	
+	%axis marks%
+	\draw[dashed, gray] (2.5,0)--(2.5,6);
+	\draw[dashed, gray] (4,0)--(4,6);
+	\draw[dashdotted, gray] (0,2.75)--(2.5,2.75);
+	\draw[dashdotted, gray] (0,1.2)--(4,1.2);
+	\draw[dashdotted, gray] (-1,4)--(4,4);
+	\draw[dashdotted, gray] (-1,1)--(0,1);
+	
+	%labels%
+	\draw[<->] (-5.5,1.5) -- (-2.5,0) node [pos=0, fill=white] {Droplet surface};
+	\node[align=center] at (5.5,-4) {Gas phase\\ (far from droplet)};
+	\node[] at (0,-3) {Vapour phase};
+	\node[] at (0,-1) {Liquid phase};
+	\node[] at (-0.4,3.2) {$Y_V$};
+	\node[] at (-0.4,2.8) {$Y_{V,S}$};
+	\node[] at (-0.4,1.2) {$Y_{V,G}$};
+	\node[] at (-1.3,1) {$T_d$};
+	\node[] at (-1.3,4) {$T_G$};
+	\end{tikzpicture}
+\end{document}
