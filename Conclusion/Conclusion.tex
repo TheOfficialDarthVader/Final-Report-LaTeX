@@ -2,15 +2,19 @@
 \begin{document}
 \hypertarget{con}{\section{Conclusion}\label{con}}
 \subsection{Summary of Results}
-It has been shown x.
+An implementation of a common heat and mass transfer model has been produced in Python. Various numerical methods were evaluated in Python and a suitable method was found. The existing OpenCL code was modified to remove the DEM model. This code was successfully verified and validated. In addition, bugs in the code where found and these were fixed. 
+
+The heat and mass model was then implemented into the OpenCl code and this was also verified and validated. The code was then used to plot heat and mass transfer PDFs to demonstrate the effects of the flow on the convective heat transfer process. It was further found increasing the Stokes number had the effect of decreasing the range in convective heat transfer experienced by the droplets.
+
+Therefore, this project has met the objectives detailed in Section \ref{intro}.
 
 \subsection{Future Work}
 \subsubsection{Additional Models and Droplet Species}
-Firstly, only one model has been implemented. The mass analogy models would make a good starting point for adding further models as this would require minimal alteration to the existing code. This could be taken further in making the code modular enough to support a user being able to easily choose a given model for running a simulation. Further to this a wider range of droplet species could be tested, for example common rocket engine propellants. 
+Firstly, only one model has been implemented. The mass analogy models would make a good starting point for adding further models as this would require minimal alteration to the existing code. This could be taken further in making the code modular enough to support a user being able to easily choose a given model for running a simulation. Further to this a wider range of droplet species could be tested, a challenging test case would for example be common rocket engine propellants. 
 
 \subsubsection{Re-ordering of Code to Simplify Running Simulations}
-This leads into another point of future work. Currently the code must be re-built every time the simulation parameters are changed. A more elegant approach would be to store simulation parameters in a text file which is loaded at runtime. This makes keeping track of simulation parameters easier (they are currently spread out across at least three source code files) and means the executable does not have to be re-built every time the parameters are changed.
+Currently the code must be re-built every time the simulation parameters are changed. A more elegant approach would be to store simulation parameters in a text file which is loaded at runtime. This makes keeping track of simulation parameters easier (they are currently spread out across at least three source code files) and means the executable does not have to be re-built every time the parameters are changed.
 
 \subsubsection{Quantitative Analysis and Optimisation of the Code}
-The code has a whole provides an opportunity for a study on optimisation. One limiting factor is data logging is exceptionally time consuming when compared to running a simulation without data logging. Steps such as finding a faster alternative to C's \lstinline[language=c, columns=fixed]|fprintf| and perhaps writing in binary instead of to a text file may provide the required performance improvement. Although the choice of numerical scheme has been justified on the basis of simplicity and performance it would be interesting to evaluate higher order implicit methods quantitatively. As fourth order schemes are quite common in the literature. 
+The code has a whole provides an opportunity for a study on optimisation. One limiting factor is data logging is exceptionally time consuming when compared to running a simulation without data logging. Steps such as finding a faster alternative to C's \lstinline[style=cstyleintext]|fprintf| and perhaps writing in binary instead of to a text file may provide the required performance improvement. This could be taken further, the results from the simulation could be stored in memory and the statistics calculated using the GPU. The benefit of this is twofold. The processing of data for very large datasets will be quicker than with using Python. Secondly, a reduced amount of information has to be written reducing the time it takes to log data. 
 \end{document}

@@ -21,7 +21,7 @@
 		fill=white,
 		draw=black,
 		font=\tiny,
-		at={(0.98,0.7)}
+		at={(0.98,0.85)}
 	}
 }
 
@@ -32,10 +32,11 @@
 	\begin{axis}[
 	axis lines=middle,
 	thick,
-	xmin=0, xmax=10000,
+	xmin=0, xmax=100,
 	ymin=-1, ymax=1,
 	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
 	extra y ticks=-0, extra y tick labels=$0$, extra y tick style={grid=none},
+	axis x line shift=1,
 	x tick label style={/pgf/number format/.cd,%
 		scaled x ticks = false,
 		set thousands separator={},
@@ -43,11 +44,13 @@
 	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
 	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
 	xlabel={$t/\tau_{d}$},
-	ylabel={Mean Speed ($ms^{-1}$)}
+	ylabel={Mean Relative Speed ($ms^{-1}$)},
+	width=\textwidth,
+	height=\axisdefaultheight
 	]
-	\addplot[dashed, red, legend entry=$U$] table[x=time, y=x_vel_bar] {tgv_rel_vel_stk_10_verification.txt};
-	\addplot[dashed, green, legend entry={$V$}] table[x=time, y=y_vel_bar] {tgv_rel_vel_stk_10_verification.txt};
-	\addplot[dashed, blue, legend entry={$W$}] table[x=time, y=z_vel_bar] {tgv_rel_vel_stk_10_verification.txt};
+	\addplot[dashed, red, legend entry=$U$] table[x=time, y=x_vel_bar] {tgv_rel_vel_stk_10_0_verification.txt};
+	\addplot[dashed, green, legend entry={$V$}] table[x=time, y=y_vel_bar] {tgv_rel_vel_stk_10_0_verification.txt};
+	\addplot[dashed, blue, legend entry={$W$}] table[x=time, y=z_vel_bar] {tgv_rel_vel_stk_10_0_verification.txt};
 	\end{axis}
 \end{tikzpicture}
 \end{document}

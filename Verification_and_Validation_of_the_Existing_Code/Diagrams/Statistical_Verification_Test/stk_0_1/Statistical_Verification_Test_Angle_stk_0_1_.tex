@@ -42,7 +42,9 @@
 	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
 	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
 	xlabel={$t/\tau_{d}$},
-	ylabel={Mean Relative Angle ($^\circ$)}
+	ylabel={Mean Relative Angle ($^\circ$)},
+	width=\textwidth,
+	height=\axisdefaultheight
 	]
 	\addplot[dotted, black] table[x=time, y=ang_bar] {tgv_rel_theta_stk_0_1_verification.txt};
 	\end{axis}

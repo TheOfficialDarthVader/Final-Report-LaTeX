@@ -84,18 +84,68 @@ where $\Delta T$ is the difference between the temperature at the surface of the
 
 In general an exact solution for $h$ is only available for specific cases such as laminar flow. More common is to form an empirical relation using non-dimensional numbers that capture the physics of the problem. \cite{Deiterding20192}
 
+The general energy conservation for the droplet can be found by considering that the change in energy of the droplet is equal to the rate of energy into the droplet subtract the rate of energy leaving the droplet. Therefore, the heat flux into the droplet $Q_L$ is the convective heat flux subtract the heat flux from vaporisation \cite{depredurand_castanet_lemoine_2010}. 
+\begin{equation}
+Q_L = Q_C - Q_V
+\end{equation}
+
+Using definitions for $Q_C$ and $Q_V$:
+\begin{equation}
+Q_L = \pi \lambda_G D Nu(T_G - T_d) - L_V\dot{m}
+\end{equation}
+
 \subsubsection{Vapour Pressure}
 The driving force for changes to the properties in the vapour phase is the vapour pressure. Assuming the droplet is formed of a pure liquid species the vapour pressure is only a function of temperature. For evaporation to occur the partial pressure of the liquid must be less than the vapour pressure \cite{Nazaroff2001}. 
 
-The vapour pressure can be found by considering that for two phases to be in equilibrium their respective chemical potentials, $\mu_{pot}$ must be equal. This implies here that $\mu_{liquid}=\mu_{gas}$ and any changes must be equal $\to d\mu_{liquid}=d\mu_{gas}$. If there is a change of pressure acting on the liquid phase, i.e. $dV_{m, liquid}dP=d\mu_{liquid}$. (With $dV_{m, liquid}$ the molar volume of the liquid phase). Therefore, $dV_{m, gas}dP_{vapour}=d\mu_{gas}$, with $dP_{vapour}$ the change in vapour pressure. Equating the changes in the liquid and gas phase, it is possible using integration and assuming the gas is perfect and the molar volume of gas is much greater than the molar volume of the liquid to derive the Clausius-Clapeyron equation. \cite{atkins_paula_2010}
-
+The vapour pressure can be found by considering that for two phases to be in equilibrium their respective chemical potentials, $\mu_{pot}$ must be equal. This implies here that $\mu_{liquid}=\mu_{gas}$ and any changes must be equal $\to d\mu_{liquid}=d\mu_{gas}$. If there is a change of pressure acting on the liquid phase, i.e. $dV_{m, liquid}dP=d\mu_{liquid}$. (With $dV_{m, liquid}$ the molar volume of the liquid phase). Therefore, $dV_{m, gas}dP_{vapour}=d\mu_{gas}$, with $dP_{vapour}$ the change in vapour pressure. Equating the changes in the liquid and gas phase, it is possible using integration and assuming the gas is perfect and the molar volume of gas is much greater than the molar volume of the liquid to derive the Clausius-Clapeyron equation \cite{atkins_paula_2010}. 
 \begin{equation}
 \chi_{s,eq} = \frac{P_{atm}}{P_G}\exp \left[\frac{L_V}{\bar{R}/W_V}\left(\frac{1}{T_B}-\frac{1}{T_d}\right)\right] 
 \end{equation}
 
 So the equilibrium mole fraction of the vapour can be found.
 
-\subsubsection{Mass Transfer}
+\subsubsection{Mass Transfer}\label{sec:mass_transfer}
+The droplet's mass can be transferred by diffusion and convection. For a stationary droplet only diffusive transfer will occur and the Reynolds number is zero. As the liquid phase heats up a phase change process occurs at the surface of the droplet and a vapour phase forms around the droplet. This vapour phase is partially responsible for how quickly the droplet evaporates. 
+
+From the surface equilibrium mole fraction the mass fraction of the vapour $Y_{s,eq}$ at the surface of the droplet can be found by considering the equilibrium condition for the droplet surface. An equilibrium condition for the fuel vapour at the droplet surface can be found as:
+\begin{equation}
+\dot{m}_{s} = \pi D^2[\rho_{G,s} u Y_s] - \pi D^2\left[\Gamma\rho_{G,s}\frac{\partial Y}{ \partial r}\right]_{r=D/2}
+\end{equation}
+
+with $\dot{m}_{s}= \rho_{G,s}\pi D^2 u$. 
+
+Mass conservation equations can also be found:
+\begin{equation}
+\frac{\partial (\rho_G r^2 u)}{\partial r} = 0
+\end{equation} 
+
+With the conservation of mass at the droplet surface is given in the following equation:
+\begin{equation}
+\frac{\partial}{\partial r}(\rho_G r^2 u Y ) - \frac{\partial}{\partial r}(\rho_G r^2 \Gamma \frac{\partial Y}{\partial r}) = 0
+\end{equation}
+
+The surface vapour fraction can be found from the ideal gas law and mixture definition \cite{ladommatos1996}.
+\begin{subequations}
+\begin{align}
+Y_{s,eq} = \frac{\chi_{s,eq}W_V}{\chi_{s,eq}W_V + \chi_{g,eq}W_C} \\
+Y_{s,eq} = \frac{\chi_{s,eq}}{\chi_{s,eq} + (1-\chi_{s,eq})\frac{W_C}{W_V}} \\
+Y_{s,eq} = \frac{\chi_{s,eq}}{\chi_{s,eq} + (1-\chi_{s,eq})\theta_2} 
+\end{align}
+\end{subequations}
+
+The ratio of the difference between the surface vapour and free stream vapour mass fractions to unity subtract the surface vapour mass fraction gives the Spalding transfer number for mass.
+\begin{equation}
+B_{M,eq} = \frac{Y_{s,eq}-Y_G}{1-Y_{s,eq}}
+\end{equation}
+
+The free stream vapour mass fraction is evaluated far from the droplet surface so this zero. Therefore the greater the surface vapour mass fraction the greater the mass transfer number. 
+
+%For the gas phase the generalised conservation equation in spherical coordinates can be derived as:
+%\begin{equation}
+%r^2\frac{\partial\rho_G}{\partial t} + \frac{\partial(\rho u r^2)}{\partial r} = 0
+%\end{equation}
+
+The equations outlined here will be used in Section \ref{sec:mass_mod} to derive an equation for mass transfer.
 
 %Deriving mass and heat transfer requires applying their respective conservation laws. For conservation of mass, the rate of mass lost by the droplet must be equal to the mass that is evaporated:
 %
@@ -109,7 +159,7 @@ So the equilibrium mole fraction of the vapour can be found.
 
 
 \subsubsection{Droplet Physical Model}
-The droplet consists of a a liquid phase surrounded by a vapour phase, with the droplet surrounded by a gas phase which is the carrier gas species. A diagram of the physical model of the droplet is shown in Figure x.
+The droplet consists of a a liquid phase surrounded by a vapour phase, with the droplet surrounded by a gas phase which is the carrier gas species. A diagram of the physical model of the droplet is shown in Figure \ref{drop_diag}.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Diagrams/Droplet_Diagram/Droplet_Diagram.pdf}
@@ -117,11 +167,9 @@ The droplet consists of a a liquid phase surrounded by a vapour phase, with the 
 	\label{drop_diag}
 \end{figure}
 
-The droplet temperature is assumed to be uniform within the droplet, although various with time. This. In reality there is a thermal gradient across the droplet. The internal temperature profile can be modelled as part of M8 in \cite{Miller1998}. The temperature rises across the vapour phase to the gas temperature. 
+The droplet temperature is assumed to be uniform within the droplet, although varies with time. In reality there is a thermal gradient across the droplet. The internal temperature profile can be modelled as part of M8 in \cite{Miller1998}. The temperature rises across the vapour phase to the gas temperature. 
 
-Similarly within the droplet the mass fraction of droplet vapour within the droplet is uniform and is equal to 1. The mass fraction drops instantaneously at the surface, as the surface of the droplet is a mixture of droplet vapour and gas phase. The mass fraction of vapour decreases across the vapour phase until an equilibrium mixture with the gas phase phase is reached. 
-
- \cite{pinheiro_vedovoto_2018}.
+Similarly within the droplet the mass fraction of droplet vapour within the droplet is uniform and is equal to 1. The mass fraction drops instantaneously at the surface, as the surface of the droplet is a mixture of droplet vapour and gas phase. The mass fraction of vapour decreases across the vapour phase until an equilibrium mixture with the gas phase phase is reached.\cite{pinheiro_vedovoto_2018}.
 
 
 %For developing a simulation code to model the physics of droplets it is impractical to model the droplets as three dimensional fluid objects with the associated boundary layers, etc... Especially given the code must be robust and efficient enough to allow for a large population of particles to be simulated in a reasonable time. Therefore, each droplet is considered as a point mass and the physics of what process are taking place on the droplet are modelled. 

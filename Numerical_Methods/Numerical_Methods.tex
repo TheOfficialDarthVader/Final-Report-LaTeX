@@ -1,9 +1,9 @@
 \documentclass[../Interim_Report_Master]{subfiles}
 \begin{document}
 \hypertarget{num_meth}{\section{Numerical Methods}\label{num_meth}}
-Given the governing equations are coupled and non-linear finding an analytical solution has not proved possible. It is therefore necessary to use a numerical scheme to solve the equations. The choice of scheme and its implementation are especially important when considering the solution must work for millions of droplets. The scheme should of course be accurate but its complexity is also a consideration. There is no point choosing a method that is very accurate but is slow because the because this will be compounded greatly across millions of particles. In addition to this the method must be stable and resistant to non-physical phenomena. (I.e. the droplet mass cannot go below zero).
+Given the governing equations are coupled and non-linear finding an analytical solution has not proved possible. It is therefore necessary to use a numerical scheme to solve the equations. The choice of scheme and its implementation are especially important when considering the solution must work for up to millions of droplets. The scheme should of course be accurate but its complexity is also a consideration. There is no point choosing a method that is very accurate but is slow because the because this will be compounded greatly across millions of particles. In addition to this the method must be stable and resistant to non-physical phenomena. (I.e. the droplet mass cannot go below zero).
 
-In terms of implementation the order in which the equations are solved may prove to be important. For example at a given time level should the temperature of the droplet be found before the mass? And what kind of error checking within the time step should take place?
+%In terms of implementation the order in which the equations are solved may prove to be important. For example at a given time level should the temperature of the droplet be found before the mass? And what kind of error checking within the time step should take place?
 
 Analytical solutions to the equations decoupled are available and provide a point of comparison for some of the schemes.
 
@@ -17,9 +17,9 @@ Numerical methods work by taking discrete steps forward in time. The length of t
 	\label{timestep_proc}
 \end{figure}
 
-There are two conditions for the loop to run. The maximum number of time steps must not have been exceeded and the physical property $\phi$ cannot have converged to its value at infinity. This works for droplet temperature whilst for mass the condition would be a ratio of current to initial mass being greater than zero. Limiting the maximum number of time steps is necessary to prevent an infinite recursion in the case of the simulation being unable to converge. Also by specifying the value $t_{div}$ in addition to $N$ the size of time step and total time to be simulated is set.
+There are two conditions for the loop to run. The maximum number of time steps must not have been exceeded and the physical property $\phi$ cannot have converged to its value at infinity. This works for droplet temperature; whilst for mass the condition would be a ratio of the current to initial mass being greater than $0.001$. Limiting the maximum number of time steps is necessary to prevent an infinite recursion in the case of the simulation being unable to converge. Also by specifying the value $t_{div}$ in addition to $N$ the size of time step and total time to be simulated is set.
 
-The ODE solver is a black box that returns a numerical solution to the ODE at each discrete timestep. Some examples are given in the following subsections.
+The ODE solver is a black box that returns a numerical solution to the ODE at each discrete timestep. Examples that will be tested are given in the following subsections.
 
 \subsection{Euler Method}
 The simplest numerical method is to step forward in time and take the value at the next time level to be the current value plus a prediction on what the change between the values will be. This can be derived from the Taylor Series:
@@ -63,7 +63,7 @@ f(x+h) = f(x)+hf^\prime(x)+O(h^2)
 The $O(h^2)$ term is the local truncation error, the error inherited at each time step. Therefore, the local error is proportional to $h^2$. The order of the method is however of first order. I.e the error overall is proportional to $h$ since the number of steps is proportional to $1/h$. 
 
 \subsection{Modified Euler Method}
-The problem with the forward Euler method is it makes one prediction about what the solution will be at the next time step and assumes this solution is correct. This method can be modified so that the current and predicted value are used to estimate the gradient over the interval. This gives a more accurate numerical estimation of the gradient so the solution at the next time step should also be more accurate. 
+The problem with the forward Euler method is it makes one prediction about what the solution will be at the next time step and assumes this solution is correct. This method can be modified so the current and predicted value are used to estimate the gradient over the interval. This gives a more accurate numerical estimation of the gradient so the solution at the next time step should also be more accurate. 
 
 Based on this the general formula is:
 \begin{equation}
@@ -108,7 +108,7 @@ More weighting is applied to the terms $k_2$ and $k_3$ as these are estimates of
 \end{figure}
 
 \subsection{Backward Euler Method}
-The previously mentioned methods are all examples of explicit methods. So called as a function for the next value in time can be expressed explicitly in terms of known variables. The disadvantage of such methods is they extrapolate into the future; for small time steps this is fine as the error is small. But for larger time steps (relative to the timescale of the problem) this can cause instability and the solution diverges. 
+The previously mentioned methods are all examples of explicit methods. So called as a function for the next value in time can be expressed explicitly in terms of known variables. The disadvantage of such methods is they extrapolate into the future; for small time steps this is fine as the local truncation error is small. But for larger time steps, (relative to the timescale of the problem) this can cause instability and the solution diverges. 
 
 An implicit method uses a function with $y_{n+1}$ on both the left and right hand side of the equation. In general this means an iterative method must be used to solve for $y_{n+1}$. However, for simpler equations an explicit function can be found. The benefit of an implicit method is it is in theory more stable than an explicit method.
 
@@ -120,14 +120,12 @@ y_{n+1} =& y_n + \Delta t f(t_{n+1},y_{n+1})
 \end{eqnarray}
 \end{subequations} 
 
-The general solution procedure using this method is shown in Figure x.
-
-Figure x
-
 A non-iterative formula can be derived for the temperature and mass ODES. Unlike the explicit methods, the implicit method will have to be derived for each ODE. For the temperature ODE:
 \begin{equation}
 \frac{dT_{d}}{dt} = \frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d}) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}
 \end{equation}
+
+This leads to:
 
 \begin{subequations}
 \begin{align}
@@ -136,13 +134,10 @@ T_{d_{n+1}} =& T_{d_{n}} + \Delta t \left[\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\th
 \end{align}
 \end{subequations} 
 
-For the second equation rearrangement is required, the full process is shown in Section \ref{back_euler_temp_dev}:
-\begin{subequations}
-\begin{align}
-T_{d_{n+1}} =& T_{d_{n}} + \Delta t \left[\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)(T_{G}-T_{d_{n+1}}) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right] \\
-T_{d_{n+1}} =& \frac{T_{d_{n}} + \Delta t \left[T_{G}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right]}{\left(1+\Delta t\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)\right)} 
-\end{align}
-\end{subequations} 
+For the second equation rearrangement is required, the full process is shown in Section \ref{back_euler_temp_dev} which leads to:
+\begin{equation}
+T_{d_{n+1}} = \frac{T_{d_{n}} + \Delta t \left[T_{G}\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right) + \left(\frac{L_{V}}{C_{L}}\right)\frac{\dot{m}_{d}}{m_{d}} - H_{\Delta T}\right]}{\left(1+\Delta t\frac{f_{2}Nu}{3Pr_{G}}\left(\frac{\theta_1}{\tau_d}\right)\right)} 
+\end{equation} 
 
 A similar process can be applied to find an equivalent expression for the mass ODE:
 \begin{equation}
@@ -162,7 +157,10 @@ Rearranging the second equation leads to:
 m_{d_{n+1}} = \frac{m_{d_{n}}}{1+ \Delta t\frac{Sh}{3Sc_{G}}\left(\frac{H_M}{\tau_{d}}\right)} 
 \end{equation} 
 
-(The full solution can be found in Section \ref{back_euler_mass_dev}). These numerical methods will be evaluated in the next section to determine their suitability.
+(The full solution can be found in Section \ref{back_euler_mass_dev}). 
+
+
+The numerical methods outlined in Section \ref{num_meth} will be evaluated in the next section to determine their suitability.
 
 %\subsection{Central Difference Method}
 %The Euler method is only first order accurate, halving the step size halves the error. A second order method has the property that if the step size is halved the error is reduced by a factor of four. A second order method could take an extra term from the Taylor series, but this requires differentiating the ODE. A less complicated method is to use first order terms to construct a method that is second order.

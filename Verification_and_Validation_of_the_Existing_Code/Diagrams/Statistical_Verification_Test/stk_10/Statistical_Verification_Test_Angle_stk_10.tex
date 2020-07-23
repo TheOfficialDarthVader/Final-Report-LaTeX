@@ -31,7 +31,7 @@
 	\begin{axis}[
 	axis lines=middle,
 	thick,
-	xmin=0, xmax=10000,
+	xmin=0, xmax=100,
 	ymin=0, ymax=100,
 	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
 	extra y ticks=0, extra y tick labels=$0$, extra y tick style={grid=none},
@@ -42,9 +42,11 @@
 	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
 	ylabel style={at={(axis description cs:-0.1,0.5)},rotate=90,anchor=south},
 	xlabel={$t/\tau_{d}$},
-	ylabel={Mean Relative Angle ($^\circ$)}
+	ylabel={Mean Relative Angle ($^\circ$)},
+	width=\textwidth,
+	height=\axisdefaultheight
 	]
-	\addplot[dotted, black] table[x=time, y=ang_bar] {tgv_rel_theta_stk_10_verification.txt};
+	\addplot[dotted, black] table[x=time, y=ang_bar] {tgv_rel_theta_stk_10_0_verification.txt};
 	\end{axis}
 \end{tikzpicture}
 \end{document}

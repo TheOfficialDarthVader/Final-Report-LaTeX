@@ -5,6 +5,7 @@
 \definecolor{folderborder}{RGB}{110,144,169}
 \definecolor{clfilebg}{RGB}{214, 72, 36}
 \definecolor{hfilebg}{RGB}{80, 214, 36}
+\definecolor{pyfilebg}{RGB}{235, 124, 14}
 
 \def\Size{4pt}
 \tikzset{
@@ -19,6 +20,9 @@
   },
   cfile/.pic={%
   	\filldraw [draw=folderborder, top color=folderbg!10, bottom color=folderbg!50] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
+  },
+  pyfile/.pic={%
+	\filldraw [draw=folderborder, top color=pyfilebg!10, bottom color=pyfilebg!50] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
   },
   hfile/.pic={%
 	\filldraw [draw=folderborder, top color=hfilebg!10, bottom color=hfilebg!50] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
@@ -59,6 +63,10 @@
 		(!u.south west) +(7.5pt,0) |- (.child anchor) pic {hfile} \forestoption{edge label};},
 		inner xsep=6pt,font=\small\ttfamily
 	},
+	pyfile/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+			(!u.south west) +(7.5pt,0) |- (.child anchor) pic {pyfile} \forestoption{edge label};},
+		inner xsep=6pt,font=\small\ttfamily
+	},
   	before typesetting nodes={
   		if n=1
   		{insert before={[,phantom]}}
@@ -68,9 +76,19 @@
   	before computing xy={l=15pt},
   }  
 [HMOranges
+  [analysis
+  	[stokes\_numbers
+  	  [stokes\_numbers\_sim.c, cfile
+  	  ]
+  	]
+  	[Final\_Stats\_Test.py, pyfile
+  	]
+  ]
   [kernels
     [get\_gravity
       [diag\_gravity.cl, clfile
+      ]
+      [gravity.cl, clfile
       ]
       [point\_gravity.cl, clfile
       ]
@@ -79,6 +97,8 @@
     ]
     [get\_vel\_fluid
       [no\_drag.cl, clfile
+      ]
+      [no\_fluid\_flow.cl, clfile
       ]
       [tgv.cl, clfile
       ]
@@ -161,6 +181,36 @@
   	]
   	[kernelUtils.cl, clfile
   	]
+ ]
+ [verification
+   [coupled\_heat\_mass\_transfer
+     [c\_heat\_transfer\_sim.c, cfile
+     ]
+     [C\_Heat\_Mass\_Transfer\_Verification.py, pyfile
+     ]
+   ]
+   [drag
+     [drag\_graphs.py, pyfile
+     ]
+     [drag\_sim.c, cfile
+     ]
+   ]
+   [gravity\_drag
+     [gravity\_drag\_sim.c, cfile
+     ]
+   ]
+   [uncoupled\_heat\_transfer
+     [uc\_heat\_transfer\_sim.c, cfile
+     ]
+     [UC\_Heat\_Transfer\_Verification.py, pyfile
+     ]
+   ]
+   [uncoupled\_mass\_transfer
+   [uc\_mass\_transfer\_sim.c, cfile
+   ]
+   [UC\_Mass\_Transfer\_Verification.py, pyfile
+   ]
+   ]
  ]
 ]
 \end{forest}

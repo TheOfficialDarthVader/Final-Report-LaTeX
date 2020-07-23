@@ -33,7 +33,7 @@
 
 %Tikz for Drawing Diagrams%
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows,fit,matrix,positioning,shapes.multipart}
+\usetikzlibrary{shapes.geometric, arrows, fit, matrix, positioning, shapes.multipart}
 \usetikzlibrary{arrows}
 \usetikzlibrary{positioning}
 
@@ -68,9 +68,88 @@
 
 %To be added to static when there's more
 \usepackage{listings}
+\usepackage{inconsolata}
+
+\definecolor{codewhite}{RGB}{169,183,198}
+\definecolor{codegreen}{RGB}{106,135,89}
+\definecolor{codeblue}{RGB}{104,151,187}
+\definecolor{codeorange}{RGB}{204,120,50}
+\definecolor{codegrey}{RGB}{128,128,128}
+\definecolor{numbergrey}{RGB}{96,99,102}
+\definecolor{backcolour}{RGB}{43,43,43}%{0.95,0.95,0.92}
+
+\lstdefinestyle{cstyle}{
+	language=C,
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{codeorange},
+	keywordstyle=[1]{\color{codeorange}},
+	keywordstyle=[2]{\color{codeblue}},
+	keywordstyle=[3]{\color{codeblue}},
+	otherkeywords={;,0.99,1},
+	morekeywords=[1]{;},
+	morekeywords=[2]{0.99},
+	morekeywords=[3]{1},
+	literate={,}{{\textcolor{codeorange}{,}}}{1}
+	{\%f}{{\textcolor{codeorange}{\%f}}}{1}
+	{nn}{{\textcolor{codeorange}{\hspace{-0.8ex}\textbackslash n}}}{1},
+	emphstyle=\color{codeorange},
+	morecomment=[n][\color{codegrey}]{/*}{*/},
+	numberstyle=\color{numbergrey},
+	stringstyle=\color{codegreen},
+	basicstyle=\fontsize{11}{11}\ttfamily\color{codewhite},
+	columns=fullflexible,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=4
+}
+
+\lstdefinestyle{cstyleintext}{
+	language=C,
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{codeorange},
+	keywordstyle=[1]{\color{codeorange}},
+	keywordstyle=[2]{\color{codeblue}},
+	keywordstyle=[3]{\color{codeorange}},
+	otherkeywords={;,0.99,1},
+	morekeywords=[1]{;},
+	morekeywords=[2]{0.99},
+	morekeywords=[3]{1},
+	literate={,}{{\textcolor{codeorange}{,}}}{1}
+	{\%f}{{\textcolor{codeorange}{\%f}}}{1}
+	{nn}{{\textcolor{codeorange}{\hspace{-0.8ex}\textbackslash n}}}{1},
+	emphstyle=\color{codeorange},
+	morecomment=[n][\color{codegrey}]{/*}{*/},
+	numberstyle=\color{numbergrey},
+	stringstyle=\color{codegreen},
+	basicstyle=\fontsize{11}{11}\ttfamily,
+	columns=fullflexible,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=4
+}
+
 \usepackage{adjustbox}
 \usepackage{subcaption} 
 \newsavebox{\mysavebox}
+
+\renewcommand{\sectionmark}[1]{\markboth{#1}{#1}}
+
 \newlength{\myrest}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -115,15 +194,13 @@ I would also like to thank Elijah Andrews for taking the time to explain and fix
 
 \newpage
 
-\hypertarget{abs}{\section*{Abstract}\label{abs}}
+\hypertarget{abs}{\section*{Abstract}\label{abs}}\markboth{{Abstract}}{Abstract}
 \addcontentsline{toc}{section}{Abstract}
-The simulation of large populations of particles is computationally an expensive process. Simply running the code on CPUs does not make sense as the simulation times do not scale with the number of particles. GPUs, however, have an architecture that makes them a superior compute device compared to CPUs for highly parallel operations.
+The simulation of large populations of particles is computationally an expensive process. Simply running the code on CPUs does not make sense as the simulation times do not scale linearly with the number of particles. GPUs, however, have an architecture that makes them a superior compute device compared to CPUs for highly parallel operations.
 
-This project will implement a commonly used model for heat and mass transfer, first in Python to develop and evaluate solving methods. With the final simulation code being written in C and OpenCL. A number of simulations with large populations of particles will be run and statistics on the particles calculated. 
+This project will implement a commonly used model for heat and mass transfer, first in Python to develop and evaluate solving methods. Existing C and OpenCL code for particle motion will be modified to simplify it. With the final simulation code being added to this code once it has been verified and validated. 
 
-Findings
-
-Summary
+A number of simulations with large populations of particles will be run and PDFs for heat and mass transfer will be plotted. The effect of the Stokes number on convective heat transfer will be investigated. This provides a starting point for further statistical analysis of heat and mass transfer PDFs.
 
 \newpage
 
@@ -172,6 +249,16 @@ Summary
 	\nomunit{$mm$}}
 \nomenclature[A]{$\bar{R}$}{Universial gas constant
 	\nomunit{$K~kg~mol$}}
+\nomenclature[A]{$h$}{Specific enthalpy
+	\nomunit{$J~kg^{-1}$}}
+\nomenclature[A]{$h$}{Enthalpy
+	\nomunit{$J$}}
+\nomenclature[A]{$q$}{Specific heat flux
+	\nomunit{$W/kg$}}
+\nomenclature[A]{$Q$}{Heat flux
+	\nomunit{$W$}}
+\nomenclature[A]{$r$}{Droplet radius
+	\nomunit{$m$}}
 
 \nomenclature[B]{$\Gamma$}{Binary diffusion coefficient 
 	\nomunit{$m^2/s$}}
@@ -202,7 +289,7 @@ Summary
 \nomenclature[C]{$0$}{Value of property at start of simulation}
 \nomenclature[C]{$B$}{Property boiling}
 
-\nomenclature[D]{$P$}{Placeholder}
+%\nomenclature[D]{$P$}{Placeholder}
 
 \nomenclature[E]{$Nu$}{Nusselt Number}
 \nomenclature[E]{$Pr$}{Prandtl Number}

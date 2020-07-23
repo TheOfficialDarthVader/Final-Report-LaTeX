@@ -24,8 +24,17 @@
 	colormap/jet,
 	colorbar,
 	colorbar style = {
-		ylabel = {Flow Speed Magnitude $m/s$}}
+		ylabel = {Flow Speed Magnitude [$ms^{-1}$]}}
 	]
+%	\newcommand{\thetaa}{atan(x/y)}
+%	\newcommand{\radius}{sqrt(x^2+y^2)}
+%	
+%	\addplot3[
+%	quiver={
+%		u={(1*cos(\thetaa)*(1-(1^2/(\radius^2))))*cos(\thetaa) - (-1*sin(\thetaa)*(1-(1^2/(\radius^2))))*sin(\thetaa)},
+%		v={(1*cos(\thetaa)*(1-(1^2/\radius^2))))*sin(\thetaa) + (-1*sin(\thetaa)*(1-(1^2/(\radius^2))))*cos(\thetaa)},
+%		scale arrows = 0.15}, samples=34,-stealth
+%	]{0};
 	\addplot3[
 	point meta={sqrt((5*cos(deg(1*(x+(pi/(1*2)))))*sin(deg(1*(y+(pi/(1*2)))))*sin(deg(1*(0+(pi/(1*2))))))^2
 		+(-5*sin(deg(1*(x+(pi/(1*2)))))*cos(deg(1*(y+(pi/(1*2)))))*sin(deg(1*(0+(pi/(1*2))))))^2)},

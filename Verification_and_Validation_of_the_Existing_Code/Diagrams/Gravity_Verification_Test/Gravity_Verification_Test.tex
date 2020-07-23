@@ -21,7 +21,7 @@
 		fill=white,
 		draw=black,
 		font=\tiny,
-		at={(0.98,0.7)}
+		at={(0.98,0.5)}
 	}
 }
 \begin{document}
@@ -44,9 +44,12 @@
 	xlabel={$t/\tau_{d}$},
 	ylabel={$u/u_{final}$}
 	]
-	\addplot[black, legend entry=Analytic solution] table[x=time, y=y_vel_an] {uc_an_vel_transfer_time_step_tau_8_nd.txt};
-	\addplot[dashed, blue, legend entry={$\Delta t = \tau/8$}] table[x=time, y=y_vel_num] {uc_num_vel_transfer_time_step_tau_8_nd.txt};
-	\addplot[dashed, green, legend entry={$\Delta t = \tau/2$}] table[x=time, y=y_vel_num] {uc_num_vel_transfer_time_step_tau_2_nd.txt};
+	\addplot[black, legend entry=Analytic solution] table[x=time_nd, y=an_y_vel_nd] {an_gravity_drag_0_001_tau_nd.txt};
+	\addplot[dashed, blue, legend entry={$\Delta t = 0.2\tau_d$}] table[x=time_nd, y=num_y_vel_nd] {gravity_drag_0_2_tau_nd.txt};
+	\addplot[dashed, orange, legend entry={$\Delta t = 0.4\tau_d$}] table[x=time_nd, y=num_y_vel_nd] {gravity_drag_0_4_tau_nd.txt};
+	\addplot[dashed, green, legend entry={$\Delta t = 0.6\tau_d$}] table[x=time_nd, y=num_y_vel_nd] {gravity_drag_0_6_tau_nd.txt};
+	\addplot[dashed, red, legend entry={$\Delta t = 0.8\tau_d$}] table[x=time_nd, y=num_y_vel_nd] {gravity_drag_0_8_tau_nd.txt};
+	\addplot[dashed, yellow, legend entry={$\Delta t = \tau_d$}] table[x=time_nd, y=num_y_vel_nd] {gravity_drag_1_0_tau_nd.txt};
 	\end{axis}
 \end{tikzpicture}
 \end{document}

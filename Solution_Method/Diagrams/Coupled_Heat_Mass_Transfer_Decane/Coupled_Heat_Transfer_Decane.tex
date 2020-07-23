@@ -1,0 +1,27 @@
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots}
+
+\begin{document}
+\pgfplotsset{set layers}
+
+\begin{tikzpicture}
+	\begin{axis}[
+	axis lines=middle,
+	thick,
+	xmin=0, xmax=5,
+	ymin=300, ymax=450,
+	extra x ticks=0, extra x tick labels=$0$, extra x tick style={grid=none},
+	extra y ticks=300, extra y tick labels=$300$, extra y tick style={grid=none},
+	x tick label style={/pgf/number format/.cd,%
+		scaled x ticks = false,
+		set thousands separator={},
+		fixed},
+	xlabel style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	ylabel style={at={(axis description cs:-0.15,0.5)},rotate=90,anchor=south},
+	xlabel={$t~[s]$},
+	ylabel={$T_d~[K]$}
+	]
+	\addplot[dashed] table[x=time, y=T_d] {c_decane_heat_mass_transfer_time_step_tau_64.txt};
+	\end{axis}
+\end{tikzpicture}
+\end{document}
